@@ -10,9 +10,8 @@ fn main() {
     app.add_plugins(RapierPhysicsPlugin::<NoUserData>::default())
         .add_plugins(RapierDebugRenderPlugin::default())
         .add_plugins(hammer::HammerPlugin)
-        .add_systems(Startup,setup);
+        .add_systems(Startup, setup);
     app.run();
-    println!("Hello, world!");
 }
 
 fn setup(mut commands: Commands) {
@@ -26,9 +25,9 @@ fn setup(mut commands: Commands) {
         Transform::from_xyz(0.0, -100.0, 0.0),
         Sprite {
             color: Color::srgb(0.5, 0.5, 0.2),
-            custom_size: Some(Vec2::new(400.0,20.0)),
+            custom_size: Some(Vec2::new(400.0, 20.0)),
             ..default()
-        }
+        },
     ));
 
     hammer::spawn_hammer(&mut commands, Vec2 { x: 0.0, y: 0.0 });
