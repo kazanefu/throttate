@@ -1,13 +1,8 @@
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
+mod definition;
+use definition::*;
 
-const HAMMER_HANDLE_OFFSET: Vec2 = Vec2 { x: -40.0, y: 0.0 };
-const HAMMER_ACTION_KEY_CODE: KeyCode = KeyCode::Space;
-const CHANGE_DIRECTION_KEY_CODE_LL: KeyCode = KeyCode::ArrowLeft;
-const CHANGE_DIRECTION_KEY_CODE_RR: KeyCode = KeyCode::ArrowRight;
-const CHANGE_DIRECTION_KEY_CODE_LR: KeyCode = KeyCode::ArrowDown;
-const CHANGE_DIRECTION_KEY_CODE_RL: KeyCode = KeyCode::ArrowUp;
-const HAMMER_SPIN: (f32, f32) = (100.0, 0.1);
 pub struct HammerPlugin;
 
 impl Plugin for HammerPlugin {

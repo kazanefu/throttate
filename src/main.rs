@@ -2,6 +2,7 @@ use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 
 mod hammer;
+mod start;
 
 fn main() {
     let mut app = App::new();
