@@ -3,13 +3,19 @@ use bevy_rapier2d::prelude::*;
 
 const HAMMER_HANDLE_OFFSET: Vec2 = Vec2 { x: -40.0, y: 0.0 };
 const HAMMER_ACTION_KEY_CODE: KeyCode = KeyCode::Space;
-const HAMMER_SPIN:(f32,f32) = (10.0,1.0);
+const CHANGE_DIRECTION_KEY_CODE_LL: KeyCode = KeyCode::ArrowLeft;
+const CHANGE_DIRECTION_KEY_CODE_RR: KeyCode = KeyCode::ArrowRight;
+const CHANGE_DIRECTION_KEY_CODE_LR: KeyCode = KeyCode::ArrowDown;
+const CHANGE_DIRECTION_KEY_CODE_RL: KeyCode = KeyCode::ArrowUp;
+const HAMMER_SPIN: (f32, f32) = (100.0, 0.1);
 pub struct HammerPlugin;
 
 impl Plugin for HammerPlugin {
     fn build(&self, app: &mut App) {
-        app.add_message::<HammerActionMessage>()
-            .add_systems(Update, (handle_hammer_input, update_hammer));
+        app.add_message::<HammerActionMessage>().add_message::<ChangeHandleDirection>().add_systems(
+            Update,
+            (handle_hammer_input, update_hammer, change_handle_direction),
+        );
     }
 }
 
@@ -19,10 +25,40 @@ enum HammerState {
     Flying,
 }
 
+#[derive(Message)]
+struct ChangeHandleDirection(HandleDirection);
+
+#[derive(Clone, Copy)]
+enum HandleDirection {
+    LeftLeft,
+    RightRight,
+    LeftRight,
+    RightLeft,
+}
+impl HandleDirection {
+    fn offset(&self) -> Vec2 {
+        match self {
+            Self::LeftLeft => HAMMER_HANDLE_OFFSET,
+            Self::RightRight => HAMMER_HANDLE_OFFSET * -1.0,
+            Self::LeftRight => HAMMER_HANDLE_OFFSET,
+            Self::RightLeft => HAMMER_HANDLE_OFFSET * -1.0,
+        }
+    }
+    fn spin(&self) -> (f32, f32) {
+        match self {
+            Self::LeftLeft => HAMMER_SPIN,
+            Self::RightRight => (-HAMMER_SPIN.0, HAMMER_SPIN.1),
+            Self::LeftRight => (-HAMMER_SPIN.0, HAMMER_SPIN.1),
+            Self::RightLeft => HAMMER_SPIN,
+        }
+    }
+}
+
 #[derive(Component, Clone, Copy)]
 pub struct Hammer {
     pivot_entity: Entity,
     state: HammerState,
+    handle_direction: HandleDirection,
 }
 
 #[derive(Component)]
@@ -36,6 +72,7 @@ pub fn hammer_bundle(pivot_entity: Entity, translate: Vec2) -> impl Bundle {
         Hammer {
             pivot_entity,
             state: HammerState::Spinning,
+            handle_direction: HandleDirection::LeftLeft,
         },
         RigidBody::Dynamic,
         Transform::from_xyz(translate.x, translate.y, 0.0),
@@ -45,7 +82,7 @@ pub fn hammer_bundle(pivot_entity: Entity, translate: Vec2) -> impl Bundle {
             RevoluteJointBuilder::new()
                 .local_anchor1(Vec2::ZERO)
                 .local_anchor2(HAMMER_HANDLE_OFFSET)
-                .motor_velocity(HAMMER_SPIN.0,HAMMER_SPIN.1),
+                .motor_velocity(HAMMER_SPIN.0, HAMMER_SPIN.1),
         ),
         Sprite {
             color: Color::srgb(0.0, 0.4, 0.9),
@@ -91,13 +128,13 @@ fn update_hammer(
                         .get_mut(hammer.pivot_entity)
                         .expect("This hammer has no pivot");
                     pivot_transform.translation = hammer_transform.0
-                        + (hammer_transform.1 * HAMMER_HANDLE_OFFSET.extend(0.0));
+                        + (hammer_transform.1 * hammer.handle_direction.offset().extend(0.0));
                     commands.entity(hammer_entity).insert(ImpulseJoint::new(
                         hammer.pivot_entity,
                         RevoluteJointBuilder::new()
                             .local_anchor1(Vec2::ZERO)
-                            .local_anchor2(HAMMER_HANDLE_OFFSET)
-                            .motor_velocity(HAMMER_SPIN.0,HAMMER_SPIN.1),
+                            .local_anchor2(hammer.handle_direction.offset())
+                            .motor_velocity(hammer.handle_direction.spin().0, HAMMER_SPIN.1),
                     ));
                     hammer.state = HammerState::Spinning;
                 }
@@ -109,8 +146,31 @@ fn update_hammer(
 fn handle_hammer_input(
     keys: Res<ButtonInput<KeyCode>>,
     mut hammer_action_writer: MessageWriter<HammerActionMessage>,
+    mut handle_direction_writer: MessageWriter<ChangeHandleDirection>,
 ) {
     if keys.just_pressed(HAMMER_ACTION_KEY_CODE) {
         hammer_action_writer.write(HammerActionMessage);
+    }
+    if keys.just_pressed(CHANGE_DIRECTION_KEY_CODE_LL) {
+        handle_direction_writer.write(ChangeHandleDirection(HandleDirection::LeftLeft));
+    }
+    if keys.just_pressed(CHANGE_DIRECTION_KEY_CODE_RR) {
+        handle_direction_writer.write(ChangeHandleDirection(HandleDirection::RightRight));
+    }
+    if keys.just_pressed(CHANGE_DIRECTION_KEY_CODE_LR) {
+        handle_direction_writer.write(ChangeHandleDirection(HandleDirection::LeftRight));
+    }
+    if keys.just_pressed(CHANGE_DIRECTION_KEY_CODE_RL) {
+        handle_direction_writer.write(ChangeHandleDirection(HandleDirection::RightLeft));
+    }
+}
+fn change_handle_direction(
+    mut hammer_query: Query<&mut Hammer>,
+    mut change_detection_message: MessageReader<ChangeHandleDirection>,
+) {
+    for message in change_detection_message.read() {
+        for mut hammer in &mut hammer_query {
+            hammer.handle_direction = message.0;
+        }
     }
 }
