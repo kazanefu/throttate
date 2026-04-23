@@ -1,6 +1,8 @@
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 
+mod utils;
+mod state;
 mod hammer;
 mod start;
 
@@ -10,8 +12,10 @@ fn main() {
     bevy::asset::embedded_asset!(app, "fonts/NotoSansJP-Bold.ttf");
     app.add_plugins(RapierPhysicsPlugin::<NoUserData>::default())
         .add_plugins(RapierDebugRenderPlugin::default())
+        .init_state::<state::GameState>()
         .add_plugins(hammer::HammerPlugin)
-        .add_systems(Startup, setup);
+        .add_plugins(start::StartPlugin);
+        //.add_systems(Startup, setup);
     app.run();
 }
 
