@@ -1,10 +1,12 @@
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 
-mod utils;
-mod state;
+mod course_selection;
 mod hammer;
 mod start;
+mod state;
+mod utils;
+mod course;
 
 fn main() {
     let mut app = App::new();
@@ -14,11 +16,12 @@ fn main() {
         .add_plugins(RapierDebugRenderPlugin::default())
         .init_state::<state::GameState>()
         .add_plugins(hammer::HammerPlugin)
-        .add_plugins(start::StartPlugin);
-        //.add_systems(Startup, setup);
-    app.run();
+        .add_plugins(start::StartPlugin)
+        .add_plugins(course_selection::CourseSelectionPlugin)
+        .run();
 }
 
+#[allow(unused)]
 fn setup(mut commands: Commands) {
     // カメラ
     commands.spawn(Camera2d);
