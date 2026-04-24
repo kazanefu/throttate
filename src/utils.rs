@@ -1,12 +1,12 @@
 use bevy::prelude::*;
-
+use crate::state::RunningState;
 pub const FONT_PATH: &str = "embedded://throtate/fonts/NotoSansJP-Bold.ttf";
 
 pub struct UtilityPlugin;
 
 impl Plugin for UtilityPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Update, (tick_interval, update_stopwatch));
+        app.add_systems(Update, (tick_interval, update_stopwatch).run_if(in_state(RunningState::Running)));
     }
 }
 

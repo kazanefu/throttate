@@ -3,7 +3,6 @@ use super::*;
 pub struct Goal;
 
 pub fn goal_bundle(x: f32, y: f32) -> impl Bundle {
-    println!("{},{}",x,y);
     (
         Transform::from_xyz(x, y, 0.0),
         Goal,

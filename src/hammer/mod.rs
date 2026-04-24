@@ -4,6 +4,7 @@ mod definition;
 mod systems;
 use definition::*;
 use systems::*;
+use crate::state::RunningState;
 
 pub struct HammerPlugin;
 
@@ -11,7 +12,7 @@ impl Plugin for HammerPlugin {
     fn build(&self, app: &mut App) {
         app.add_message::<HammerActionMessage>().add_message::<ChangeHandleDirection>().add_systems(
             Update,
-            (handle_hammer_input, update_hammer, change_handle_direction),
+            (handle_hammer_input, update_hammer, change_handle_direction).run_if(in_state(RunningState::Running)),
         );
     }
 }

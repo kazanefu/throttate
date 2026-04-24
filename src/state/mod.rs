@@ -8,3 +8,10 @@ pub enum GameState {
     Playing,
     Result,
 }
+
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug, Default, States)]
+pub enum RunningState {
+    #[default]
+    Running,
+    Paused,
+}

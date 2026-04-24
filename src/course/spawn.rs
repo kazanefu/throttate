@@ -16,7 +16,7 @@ pub fn spawn_course_from_id(
         let course = course_list_res
             .0
             .iter()
-            .find(|(course_entry, course)| course_entry.id == *id);
+            .find(|(course_entry, _course)| course_entry.id == *id);
         match course {
             Some((_course_entry, course)) => {
                 let course_entity = commands.spawn((CourseID::new(*id),Transform::from_xyz(0.0, 0.0, 0.0))).id();
