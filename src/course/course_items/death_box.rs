@@ -8,6 +8,7 @@ pub fn death_box_bundle(x: f32, y: f32) -> impl Bundle {
         Death,
         RigidBody::Fixed,
         ActiveEvents::COLLISION_EVENTS,
+        Collider::cuboid(ONE_BOX_SIZE / 2.0, ONE_BOX_SIZE / 2.0),
         Sprite {
             color: Color::srgb(0.9, 0.2, 0.2),
             custom_size: Some(Vec2::new(ONE_BOX_SIZE, ONE_BOX_SIZE)),

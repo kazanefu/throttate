@@ -1,11 +1,18 @@
-use crate::{course::course_items::{checkpoint::CheckPoint, death_box::Death, goal::Goal}, state::{GameState, RunningState}};
+use crate::{
+    course::course_items::{checkpoint::CheckPoint, death_box::Death, goal::Goal},
+    hammer::definition::{Hammer, HammerFreeMessage, HammerState},
+    state::{GameState, RunningState},
+};
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 pub struct PlayerPlugin;
 
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Update, handle_death.run_if(in_state(GameState::Playing).and(in_state(RunningState::Running))));
+        app.add_systems(
+            Update,
+            handle_death.run_if(in_state(GameState::Playing).and(in_state(RunningState::Running))),
+        );
     }
 }
 
@@ -22,12 +29,15 @@ pub struct TargetCheckPoint {
 }
 
 fn handle_death(
+    mut commands: Commands,
+    mut hammer_query: Query<(&mut Hammer)>,
     mut player_query: Query<
         (&mut DeathCount, &mut Transform, &TargetCheckPoint, Entity),
         With<Player>,
     >,
     death_query: Query<&Death>,
     mut collision_event: MessageReader<CollisionEvent>,
+    mut hammer_action_writer: MessageWriter<HammerFreeMessage>,
 ) {
     let mut player = player_query
         .single_mut()
@@ -38,6 +48,13 @@ fn handle_death(
                 if (player.3 == e1 && death_query.get(e2).is_ok())
                     || (player.3 == e2 && death_query.get(e1).is_ok())
                 {
+                    hammer_action_writer.write(HammerFreeMessage);
+                    for mut hammer in &mut hammer_query {
+                        if matches!(hammer.state, HammerState::Spinning) {
+                            commands.entity(player.3).remove::<ImpulseJoint>();
+                            hammer.state = HammerState::Flying;
+                        }
+                    }
                     player.0.0 += 1;
                     player.1.translation = player.2.position;
                 }
@@ -46,4 +63,3 @@ fn handle_death(
         }
     }
 }
-

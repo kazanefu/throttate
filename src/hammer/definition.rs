@@ -57,6 +57,9 @@ pub struct Pivot;
 #[derive(Message)]
 pub struct HammerActionMessage;
 
+#[derive(Message)]
+pub struct HammerFreeMessage;
+
 pub fn hammer_bundle(pivot_entity: Entity, translate: Vec2) -> impl Bundle {
     (
         Hammer {

@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
-mod definition;
+pub mod definition;
 mod systems;
 use definition::*;
 use systems::*;
@@ -10,9 +10,9 @@ pub struct HammerPlugin;
 
 impl Plugin for HammerPlugin {
     fn build(&self, app: &mut App) {
-        app.add_message::<HammerActionMessage>().add_message::<ChangeHandleDirection>().add_systems(
+        app.add_message::<HammerActionMessage>().add_message::<ChangeHandleDirection>().add_message::<HammerFreeMessage>().add_systems(
             Update,
-            (handle_hammer_input, update_hammer, change_handle_direction).run_if(in_state(RunningState::Running)),
+            (handle_hammer_input, update_hammer,free_hammer, change_handle_direction).run_if(in_state(RunningState::Running)),
         );
     }
 }

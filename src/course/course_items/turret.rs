@@ -15,6 +15,7 @@ pub fn turret_bundle(x: f32, y: f32, interval: f32, rotation: f32) -> impl Bundl
         },
         Turret,
         RigidBody::Fixed,
+        Collider::cuboid(ONE_BOX_SIZE / 2.0, ONE_BOX_SIZE / 2.0),
         Sprite {
             color: Color::srgb(0.2, 0.2, 0.2),
             custom_size: Some(Vec2::new(ONE_BOX_SIZE, ONE_BOX_SIZE)),

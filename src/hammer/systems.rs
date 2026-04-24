@@ -1,6 +1,6 @@
+use super::definition::*;
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
-use super::definition::*;
 
 pub fn update_hammer(
     mut commands: Commands,
@@ -36,6 +36,21 @@ pub fn update_hammer(
                     ));
                     hammer.state = HammerState::Spinning;
                 }
+            }
+        }
+    }
+}
+
+pub fn free_hammer(
+    mut commands: Commands,
+    mut hammer_query: Query<(Entity, &mut Hammer)>,
+    mut hammer_free_reader: MessageReader<HammerFreeMessage>,
+) {
+    for _ in hammer_free_reader.read() {
+        for (hammer_entity, mut hammer) in &mut hammer_query {
+            if matches!(hammer.state, HammerState::Spinning) {
+                commands.entity(hammer_entity).remove::<ImpulseJoint>();
+                hammer.state = HammerState::Flying;
             }
         }
     }
