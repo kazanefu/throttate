@@ -31,7 +31,7 @@ fn continue_button_bundle(asset_server: &AssetServer) -> impl Bundle {
         },
         BackgroundColor::default(),
         children![(
-            Text::new("Continue"),
+            Text::new("コンティニュー"),
             TextFont {
                 font: asset_server.load(FONT_PATH),
                 font_size: 40.0,
@@ -58,7 +58,7 @@ fn result_text_bundle(asset_server: &AssetServer, score: &Score) -> impl Bundle 
                 Node::default(),
                 children![
                     (
-                        Text::new("Time: "),
+                        Text::new("タイム: "),
                         TextFont {
                             font: asset_server.load(FONT_PATH),
                             font_size: 40.0,
@@ -81,7 +81,7 @@ fn result_text_bundle(asset_server: &AssetServer, score: &Score) -> impl Bundle 
                 Node::default(),
                 children![
                     (
-                        Text::new("Death: "),
+                        Text::new("死亡数: "),
                         TextFont {
                             font: asset_server.load(FONT_PATH),
                             font_size: 40.0,

@@ -52,7 +52,7 @@ fn start_button_bundle(asset_server: &AssetServer) -> impl Bundle {
         },
         BackgroundColor(Color::srgb(0.1, 0.9, 0.2)),
         children![(
-            Text::new("Start"),
+            Text::new("スタート"),
             TextFont {
                 font: asset_server.load(FONT_PATH),
                 font_size: 40.0,
