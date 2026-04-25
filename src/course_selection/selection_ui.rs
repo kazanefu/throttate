@@ -85,7 +85,7 @@ fn selection_canvas_bundle() -> impl Bundle {
 }
 
 #[derive(Component)]
-struct ScrollContent;
+pub struct ScrollContent;
 
 fn selection_sub_canvas_bundle() -> impl Bundle {
     (
@@ -193,7 +193,7 @@ fn scroll_system(
     for ev in wheel.read() {
         *offset += ev.y * 20.0;
 
-        *offset = offset.clamp(-1000.0, 0.0);
+        *offset = offset.clamp(-1000.0, 1000.0);
 
         for mut node in &mut query {
             node.top = Val::Px(*offset);

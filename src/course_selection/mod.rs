@@ -1,6 +1,6 @@
 use crate::state::GameState;
 use bevy::prelude::*;
-mod selection_ui;
+pub mod selection_ui;
 mod startup;
 pub mod resources;
 use startup::*;

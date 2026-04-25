@@ -31,7 +31,7 @@ impl Plugin for StartUiPlugin {
         app.add_systems(OnEnter(GameState::Start), spawn_start_ui)
             .add_systems(
                 Update,
-                update_start_button.run_if(in_state(GameState::Start)),
+                (update_start_button, scroll_system).run_if(in_state(GameState::Start)),
             );
     }
 }
@@ -84,8 +84,9 @@ fn start_canvas_bundle() -> impl Bundle {
             width: percent(100),
             height: percent(100),
             align_items: AlignItems::Center,
-            justify_content: JustifyContent::Center,
+            justify_content: JustifyContent::Start,
             flex_direction: FlexDirection::Column,
+            overflow: Overflow::clip(),
             ..default()
         },
     )
@@ -93,11 +94,13 @@ fn start_canvas_bundle() -> impl Bundle {
 
 fn spawn_start_ui(mut commands: Commands, asset_server: Res<AssetServer>) {
     let canvas = commands.spawn(start_canvas_bundle()).id();
+    let sub_canvas = commands.spawn(start_sub_canvas_bundle()).id();
     let explanation_text = commands.spawn(explanation_text_bundle(&asset_server)).id();
     let start_button = commands.spawn(start_button_bundle(&asset_server)).id();
     commands
-        .entity(canvas)
+        .entity(sub_canvas)
         .add_children(&[explanation_text, start_button]);
+    commands.entity(canvas).add_child(sub_canvas);
 }
 
 type StartButtonInputs = (Changed<Interaction>, With<StartButton>);
@@ -105,7 +108,7 @@ type StartButtonInputs = (Changed<Interaction>, With<StartButton>);
 fn update_start_button(
     mut game_state: ResMut<NextState<GameState>>,
     mut query: Query<(&Interaction, &mut BackgroundColor), StartButtonInputs>,
-    key: Res<ButtonInput<KeyCode>>
+    key: Res<ButtonInput<KeyCode>>,
 ) {
     for (interaction, mut background_color) in &mut query {
         match interaction {
@@ -123,5 +126,41 @@ fn update_start_button(
     }
     if key.just_pressed(KeyCode::Enter) {
         game_state.set(GameState::CourseSelection);
+    }
+}
+
+use crate::course_selection::selection_ui::ScrollContent;
+use bevy::input::mouse::MouseWheel;
+
+fn start_sub_canvas_bundle() -> impl Bundle {
+    (
+        ScrollContent,
+        Node {
+            width: percent(100),
+            height: percent(100),
+            position_type: PositionType::Absolute,
+            align_items: AlignItems::Center,
+            justify_content: JustifyContent::Center,
+            flex_direction: FlexDirection::Column,
+            top: Val::Px(0.0),
+            row_gap: Val::Px(10.0),
+            ..default()
+        }
+    )
+}
+
+fn scroll_system(
+    mut wheel: MessageReader<MouseWheel>,
+    mut query: Query<&mut Node, With<ScrollContent>>,
+    mut offset: Local<f32>,
+) {
+    for ev in wheel.read() {
+        *offset += ev.y * 20.0;
+
+        *offset = offset.clamp(-1000.0, 300.0);
+
+        for mut node in &mut query {
+            node.top = Val::Px(*offset);
+        }
     }
 }
