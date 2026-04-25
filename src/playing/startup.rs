@@ -1,7 +1,7 @@
 use super::*;
 use crate::course::{CourseID, SpawnCourseMessage};
 use crate::course_selection::resources::SelectedCourseID;
-use crate::hammer::definition::Pivot;
+use crate::hammer::definition::{ChangeHandleDirection, HandleDirection, Pivot};
 use crate::hammer::spawn_hammer;
 use crate::state::GameState;
 use bevy_rapier2d::prelude::*;
@@ -45,7 +45,10 @@ fn add_component_for_despawn(
     }
 }
 
-fn spawn_player(mut commands: Commands) {
+fn spawn_player(
+    mut commands: Commands,
+    mut handle_direction_message: MessageWriter<ChangeHandleDirection>,
+) {
     let player_entity = spawn_hammer(&mut commands, Vec2 { x: 0.0, y: 0.0 })
         .insert(Player)
         .insert(DeathCount(0))
@@ -53,5 +56,6 @@ fn spawn_player(mut commands: Commands) {
         .insert(ActiveEvents::COLLISION_EVENTS)
         .insert(DespawnOnExit(GameState::Playing))
         .id();
+    handle_direction_message.write(ChangeHandleDirection(HandleDirection::LeftLeft));
     commands.spawn(main_camera_bundle(player_entity));
 }
