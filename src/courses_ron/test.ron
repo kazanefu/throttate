@@ -6,5 +6,6 @@
         (x: -100.0, y: 100.0, kind: Death),
         (x: 100.0, y: 100.0, kind: Checkpoint(priority: 1)),
         (x: 100.0, y: 200.0, kind: Checkpoint(priority: 2)),
+        (x: 200.0, y: 200.0, kind: Breakable(required_speed: 40.0)),
     ]
 )

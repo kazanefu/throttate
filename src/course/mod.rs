@@ -11,6 +11,8 @@ pub struct CoursePlugin;
 impl Plugin for CoursePlugin {
     fn build(&self, app: &mut App) {
         app.insert_resource(CourseListResource::default())
+            .add_plugins(course_items::turret::TurretPlugin)
+            .add_plugins(course_items::breakable_box::BreakableBoxPlugin)
             .add_message::<SpawnCourseMessage>()
             .add_systems(Startup, init_courses_list_resource).add_systems(Update,spawn_course_from_id);
     }
@@ -21,6 +23,7 @@ pub struct CourseListResource(pub Vec<(CourseEntry, Course)>);
 
 #[derive(Component)]
 pub struct CourseID {
+    #[allow(unused)]
     id: usize,
 }
 

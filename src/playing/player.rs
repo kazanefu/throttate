@@ -1,9 +1,5 @@
 use crate::{
-    course::course_items::{
-        checkpoint::{self, CheckPoint},
-        death_box::Death,
-        goal::Goal,
-    },
+    course::course_items::{checkpoint::CheckPoint, death_box::Death, goal::Goal},
     hammer::definition::{Hammer, HammerFreeMessage, HammerState},
     state::{GameState, RunningState},
 };
@@ -118,8 +114,12 @@ fn reach_goal(
             Err(_) => return,
         };
         if let CollisionEvent::Started(e1, e2, _) = event {
-            if e1 != player_entity && e2 != player_entity { break ;}
-            if goal_query.get(e1).is_err() && goal_query.get(e2).is_err() { break ; }
+            if e1 != player_entity && e2 != player_entity {
+                break;
+            }
+            if goal_query.get(e1).is_err() && goal_query.get(e2).is_err() {
+                break;
+            }
             reach_message.write(ReachedGoalMessage);
             println!("goal");
         }
