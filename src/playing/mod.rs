@@ -13,6 +13,7 @@ impl Plugin for PlayingPlugin {
         app.add_plugins(startup::PlayingStartupPlugin)
             .add_plugins(main_camera::MainCameraPlugin)
             .add_plugins(player::PlayerPlugin)
+            .add_plugins(score::ScorePlugin)
             .add_plugins(ui::PlayingUiPlugin);
     }
 }

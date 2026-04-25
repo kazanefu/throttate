@@ -1,7 +1,7 @@
 use super::*;
 use crate::state::GameState;
 
-const FOLLOW_SPEED: f32 = 0.4;
+const FOLLOW_SPEED: f32 = 0.6;
 
 pub struct MainCameraPlugin;
 

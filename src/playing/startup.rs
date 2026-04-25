@@ -44,6 +44,7 @@ fn spawn_player(mut commands: Commands) {
         .insert(DeathCount(0))
         .insert(TargetCheckPoint::default())
         .insert(ActiveEvents::COLLISION_EVENTS)
+        .insert(DespawnOnExit(GameState::Playing))
         .id();
     commands.spawn(main_camera_bundle(player_entity));
 }

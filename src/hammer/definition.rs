@@ -1,7 +1,8 @@
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 
-pub const HAMMER_HANDLE_OFFSET: Vec2 = Vec2 { x: -40.0, y: 0.0 };
+pub const HAMMER_HANDLE_OFFSET: Vec2 = Vec2 { x: -80.0, y: 0.0 };
+const HAMMER_SIZE: f32 = 20.0;
 pub const HAMMER_ACTION_KEY_CODE: KeyCode = KeyCode::Space;
 pub const CHANGE_DIRECTION_KEY_CODE_LL: KeyCode = KeyCode::ArrowLeft;
 pub const CHANGE_DIRECTION_KEY_CODE_RR: KeyCode = KeyCode::ArrowRight;
@@ -69,7 +70,7 @@ pub fn hammer_bundle(pivot_entity: Entity, translate: Vec2) -> impl Bundle {
         },
         RigidBody::Dynamic,
         Transform::from_xyz(translate.x, translate.y, 0.0),
-        Collider::ball(10.0),
+        Collider::ball(HAMMER_SIZE),
         Restitution::coefficient(0.8),
         ImpulseJoint::new(
             pivot_entity,
@@ -80,23 +81,23 @@ pub fn hammer_bundle(pivot_entity: Entity, translate: Vec2) -> impl Bundle {
         ),
         Sprite {
             color: Color::srgb(0.0, 0.4, 0.9),
-            custom_size: Some(Vec2::new(20.0, 20.0)),
+            custom_size: Some(Vec2::new(HAMMER_SIZE * 2.0, HAMMER_SIZE * 2.0)),
             ..default()
         },
         children![
             (
-                Transform::from_xyz(-40.0, 0.0, 0.0),
+                Transform::from_xyz(HAMMER_HANDLE_OFFSET.x, HAMMER_HANDLE_OFFSET.y, 0.0),
                 Sprite {
                     color: Color::srgb(0.0, 0.9, 0.9),
-                    custom_size: Some(Vec2::new(2.0, 2.0)),
+                    custom_size: Some(Vec2::new(5.0, 5.0)),
                     ..default()
                 },
             ),
             (
-                Transform::from_xyz(40.0, 0.0, 0.0),
+                Transform::from_xyz(-HAMMER_HANDLE_OFFSET.x, HAMMER_HANDLE_OFFSET.y, 0.0),
                 Sprite {
                     color: Color::srgb(0.9, 0.0, 0.9),
-                    custom_size: Some(Vec2::new(2.0, 2.0)),
+                    custom_size: Some(Vec2::new(5.0, 5.0)),
                     ..default()
                 },
             ),

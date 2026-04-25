@@ -7,15 +7,16 @@ use crate::{
     hammer::definition::{Hammer, HammerFreeMessage, HammerState},
     state::{GameState, RunningState},
 };
-use bevy::{math::VectorSpace, prelude::*};
+use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 pub struct PlayerPlugin;
 
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(
+        app.add_message::<ReachedGoalMessage>().add_systems(
             Update,
-            (handle_death,reach_checkpoint).run_if(in_state(GameState::Playing).and(in_state(RunningState::Running))),
+            (handle_death, reach_checkpoint, reach_goal)
+                .run_if(in_state(GameState::Playing).and(in_state(RunningState::Running))),
         );
     }
 }
@@ -85,7 +86,9 @@ fn reach_checkpoint(
     for &event in collision_event.read() {
         for (player_entity, mut target_checkpoint) in &mut player_query {
             if let CollisionEvent::Started(e1, e2, _) = event {
-                if e1 != player_entity && e2 != player_entity {break;}
+                if e1 != player_entity && e2 != player_entity {
+                    break;
+                }
                 let checkpoint = checkpoint_query.get(e1).unwrap_or(
                     checkpoint_query
                         .get(e2)
@@ -96,6 +99,29 @@ fn reach_checkpoint(
                     target_checkpoint.position = checkpoint.1.translation;
                 }
             }
+        }
+    }
+}
+
+#[derive(Message)]
+pub struct ReachedGoalMessage;
+
+fn reach_goal(
+    mut reach_message: MessageWriter<ReachedGoalMessage>,
+    mut collision_event: MessageReader<CollisionEvent>,
+    player_query: Query<Entity, With<Player>>,
+    goal_query: Query<(), With<Goal>>,
+) {
+    for &event in collision_event.read() {
+        let player_entity = match player_query.single() {
+            Ok(entity) => entity,
+            Err(_) => return,
+        };
+        if let CollisionEvent::Started(e1, e2, _) = event {
+            if e1 != player_entity && e2 != player_entity { break ;}
+            if goal_query.get(e1).is_err() && goal_query.get(e2).is_err() { break ; }
+            reach_message.write(ReachedGoalMessage);
+            println!("goal");
         }
     }
 }

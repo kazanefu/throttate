@@ -16,7 +16,7 @@ fn main() {
     app.add_plugins(DefaultPlugins);
     bevy::asset::embedded_asset!(app, "fonts/NotoSansJP-Bold.ttf");
     app.add_plugins(RapierPhysicsPlugin::<NoUserData>::default())
-        .add_plugins(RapierDebugRenderPlugin::default())
+        // .add_plugins(RapierDebugRenderPlugin::default())
         .add_plugins(utils::UtilityPlugin)
         .init_state::<state::GameState>()
         .init_state::<state::RunningState>()
