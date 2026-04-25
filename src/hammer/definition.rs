@@ -69,7 +69,7 @@ pub fn hammer_bundle(pivot_entity: Entity, translate: Vec2) -> impl Bundle {
             handle_direction: HandleDirection::LeftLeft,
         },
         RigidBody::Dynamic,
-        Transform::from_xyz(translate.x, translate.y, 0.0),
+        Transform::from_xyz(translate.x, translate.y, 10.0),
         Collider::ball(HAMMER_SIZE),
         Restitution::coefficient(0.8),
         Velocity::default(),
@@ -87,7 +87,7 @@ pub fn hammer_bundle(pivot_entity: Entity, translate: Vec2) -> impl Bundle {
         },
         children![
             (
-                Transform::from_xyz(HAMMER_HANDLE_OFFSET.x, HAMMER_HANDLE_OFFSET.y, 0.0),
+                Transform::from_xyz(HAMMER_HANDLE_OFFSET.x, HAMMER_HANDLE_OFFSET.y, 10.0),
                 Sprite {
                     color: Color::srgb(0.0, 0.9, 0.9),
                     custom_size: Some(Vec2::new(5.0, 5.0)),
@@ -95,7 +95,7 @@ pub fn hammer_bundle(pivot_entity: Entity, translate: Vec2) -> impl Bundle {
                 },
             ),
             (
-                Transform::from_xyz(-HAMMER_HANDLE_OFFSET.x, HAMMER_HANDLE_OFFSET.y, 0.0),
+                Transform::from_xyz(-HAMMER_HANDLE_OFFSET.x, HAMMER_HANDLE_OFFSET.y, 10.0),
                 Sprite {
                     color: Color::srgb(0.9, 0.0, 0.9),
                     custom_size: Some(Vec2::new(5.0, 5.0)),

@@ -31,7 +31,7 @@ pub fn spawn_hammer<'a>(commands: &'a mut Commands, translate: Vec2) -> EntityCo
     let pivot = commands
         .spawn((
             RigidBody::Fixed,
-            Transform::from_xyz(translate.x - 1.0, translate.y - 1.0, 0.0),
+            Transform::from_xyz(translate.x - 1.0, translate.y - 1.0, 10.0),
             Pivot,
             Sprite {
                 color: Color::srgb(0.0, 1.0, 0.0),
