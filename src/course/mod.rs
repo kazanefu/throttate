@@ -53,6 +53,7 @@ pub enum EntityKind {
     Death,
     Checkpoint { priority: u32 },
     Goal,
+    Text { sentence: String },
 }
 
 #[derive(Deserialize, Default)]

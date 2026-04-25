@@ -9,3 +9,4 @@ pub mod breakable_box;
 pub mod death_box;
 pub mod turret;
 pub mod goal;
+pub mod text_box;
