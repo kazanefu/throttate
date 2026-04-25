@@ -3,9 +3,12 @@ mod main_camera;
 mod player;
 mod startup;
 mod ui;
+mod exit;
 pub mod score;
 pub use main_camera::*;
 pub use player::*;
+
+use crate::state::GameState;
 pub struct PlayingPlugin;
 
 impl Plugin for PlayingPlugin {
@@ -14,6 +17,7 @@ impl Plugin for PlayingPlugin {
             .add_plugins(main_camera::MainCameraPlugin)
             .add_plugins(player::PlayerPlugin)
             .add_plugins(score::ScorePlugin)
-            .add_plugins(ui::PlayingUiPlugin);
+            .add_plugins(ui::PlayingUiPlugin)
+            .add_systems(Update, exit::exit.run_if(not(in_state(GameState::Start))));
     }
 }
