@@ -21,7 +21,7 @@ impl Plugin for SelectionUiPlugin {
 }
 
 const SELECTION_EXPLANATION: &str = r#"
-ここに選び方の説明を書く
+プレイするコースを選択してください
 "#;
 
 #[derive(Component)]

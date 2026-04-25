@@ -2,7 +2,26 @@ use crate::state::GameState;
 use crate::utils::FONT_PATH;
 use bevy::prelude::*;
 const EXPLANATION_TEXT: &str = r#"
-ここにゲームの説明を書く
+概要: 
+    ハンマー投のようにぐるぐる回してから離すことで移動してゴールを目指すゲームです。
+登場するもの:
+    プレイヤー:
+        青い立方体の見た目で操作可能
+    赤色の立方体:
+        当たると死ぬ
+    水色の立方体:
+        チェックポイント
+    オレンジ色の立方体:
+        小さな赤色の立方体を発射する
+    黄色の立方体:
+        一定速度以上の物体が当たると壊れる
+    マゼンタの立方体:
+        ゴール
+    黄土色:
+        地形
+操作方法:
+    Spaceキーで拘束して回転と拘束を解くのを切り替える
+    矢印キーで回転軸の相対座標と回転方向を切り替える
 "#;
 
 pub struct StartUiPlugin;
@@ -53,7 +72,7 @@ fn explanation_text_bundle(asset_server: &AssetServer) -> impl Bundle {
             font_size: 40.0,
             ..default()
         },
-        TextLayout::new_with_justify(Justify::Center),
+        TextLayout::new_with_justify(Justify::Left),
         TextColor::WHITE,
     )
 }
