@@ -105,6 +105,7 @@ type StartButtonInputs = (Changed<Interaction>, With<StartButton>);
 fn update_start_button(
     mut game_state: ResMut<NextState<GameState>>,
     mut query: Query<(&Interaction, &mut BackgroundColor), StartButtonInputs>,
+    key: Res<ButtonInput<KeyCode>>
 ) {
     for (interaction, mut background_color) in &mut query {
         match interaction {
@@ -119,5 +120,8 @@ fn update_start_button(
                 background_color.0 = Color::srgb(0.0, 0.5, 0.5);
             }
         }
+    }
+    if key.just_pressed(KeyCode::Enter) {
+        game_state.set(GameState::CourseSelection);
     }
 }
