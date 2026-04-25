@@ -242,7 +242,7 @@ fn update_confirm_button_text(
         "None".to_string()
     };
     for mut text in &mut text_query {
-        **text = format!("confirm: {}", name);
+        **text = format!("決定: {}", name);
     }
 }
 
