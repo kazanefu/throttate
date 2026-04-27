@@ -1,7 +1,5 @@
 use crate::{
-    course::course_items::{checkpoint::CheckPoint, death_box::Death, goal::Goal},
-    hammer::definition::{Hammer, HammerFreeMessage, HammerState},
-    state::{GameState, RunningState},
+    action_effect::FireDeathEffect, course::course_items::{checkpoint::CheckPoint, death_box::Death, goal::Goal}, hammer::definition::{Hammer, HammerFreeMessage, HammerState}, state::{GameState, RunningState}
 };
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
@@ -39,6 +37,7 @@ fn handle_death(
     death_query: Query<&Death>,
     mut collision_event: MessageReader<CollisionEvent>,
     mut hammer_action_writer: MessageWriter<HammerFreeMessage>,
+    mut death_writer: MessageWriter<crate::action_effect::FireDeathEffect>,
 ) {
     let mut player = player_query
         .single_mut()
@@ -56,6 +55,7 @@ fn handle_death(
                             hammer.state = HammerState::Flying;
                         }
                     }
+                    death_writer.write(FireDeathEffect(player.1.translation));
                     player.0.0 += 1;
                     player.1.translation = player.2.position;
                 }

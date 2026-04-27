@@ -1,10 +1,16 @@
 use super::*;
 
+mod brerak_effect;
+use brerak_effect::*;
+
 pub struct BreakableBoxPlugin;
 
 impl Plugin for BreakableBoxPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Update, breakable_system);
+        app.add_message::<FireBreakEffect>()
+            .insert_resource(BreakEffect(None))
+            .add_systems(Startup, setup_break_effect)
+            .add_systems(Update, (breakable_system, handle_break_effect));
     }
 }
 
@@ -33,11 +39,14 @@ pub fn breakable_box_bundle(x: f32, y: f32, required_speed: f32) -> impl Bundle 
     )
 }
 
+
 fn breakable_system(
     mut commands: Commands,
     mut collision_events: MessageReader<CollisionEvent>,
     breakable_query: Query<(Entity, &Breakable)>,
     velocity_query: Query<&Velocity>,
+    transform_query: Query<&Transform>,
+    mut fire_break_effect: MessageWriter<FireBreakEffect>,
 ) {
     for event in collision_events.read() {
         if let CollisionEvent::Started(e1, e2, _) = event {
@@ -60,6 +69,11 @@ fn breakable_system(
                 (None, None) => 0.0,
             };
             if speed >= breakable.required_speed {
+                let position = transform_query
+                    .get(break_entity)
+                    .expect("break_entity don't have transform")
+                    .translation;
+                fire_break_effect.write(FireBreakEffect(position));
                 commands.entity(break_entity).despawn();
             }
         }

@@ -1,6 +1,7 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
+use bevy_hanabi::prelude::*;
 
 mod course;
 mod course_selection;
@@ -10,6 +11,7 @@ mod state;
 mod utils;
 mod playing;
 mod result;
+mod action_effect;
 
 pub use utils::*;
 
@@ -21,6 +23,7 @@ fn main() {
     bevy::asset::embedded_asset!(app, "images/magentapivot.png");
     app.add_plugins(RapierPhysicsPlugin::<NoUserData>::default())
         // .add_plugins(RapierDebugRenderPlugin::default())
+        .add_plugins(HanabiPlugin)
         .add_plugins(utils::UtilityPlugin)
         .init_state::<state::GameState>()
         .init_state::<state::RunningState>()
@@ -30,6 +33,7 @@ fn main() {
         .add_plugins(playing::PlayingPlugin)
         .add_plugins(course_selection::CourseSelectionPlugin)
         .add_plugins(result::ResultPlugin)
+        .add_plugins(action_effect::ActionEffectPlugin)
         .run();
 }
 

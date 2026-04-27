@@ -2,6 +2,7 @@ use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 pub mod definition;
 mod systems;
+mod trail_effect;
 use crate::state::RunningState;
 use definition::*;
 use systems::*;
@@ -22,6 +23,7 @@ impl Plugin for HammerPlugin {
                     free_hammer,
                     change_handle_direction,
                     pivot_textur,
+                    trail_effect::attach_trail_effect,
                 )
                     .run_if(in_state(RunningState::Running)),
             );

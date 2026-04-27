@@ -23,7 +23,7 @@ fn continue_button_bundle(asset_server: &AssetServer) -> impl Bundle {
         Button,
         ContinueButton,
         Node {
-            width: percent(20),
+            width: percent(40),
             height: percent(10),
             justify_content: JustifyContent::Center,
             align_items: AlignItems::Center,
