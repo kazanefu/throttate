@@ -6,7 +6,10 @@ pub struct BreakableBoxPlugin;
 
 impl Plugin for BreakableBoxPlugin {
     fn build(&self, app: &mut App) {
-        app.add_message::<FireBreakEffect>().add_systems(Update, (breakable_system,handle_break_effect));
+        app.add_message::<FireBreakEffect>()
+            .insert_resource(BreakEffect(None))
+            .add_systems(Startup,setup_break_effect)
+            .add_systems(Update, (breakable_system, handle_break_effect));
     }
 }
 
@@ -80,19 +83,30 @@ fn breakable_system(
 
 fn handle_break_effect(
     mut commands: Commands,
-    mut effects: ResMut<Assets<EffectAsset>>,
+    effect: Res<BreakEffect>,
     mut fire_message: MessageReader<FireBreakEffect>,
 ) {
     for position in fire_message.read() {
         commands.spawn((
-            ParticleEffect::new(break_effect(&mut effects, position.0)),
-            Transform::from_translation(Vec3::ZERO),
+            ParticleEffect::new(effect.0.clone().expect("break effect never setuped")),
+            Transform::from_translation(position.0),
         ));
     }
 }
 
+#[derive(Resource,Clone)]
+struct BreakEffect(Option<Handle<EffectAsset>>);
+
+fn setup_break_effect(
+    mut effects: ResMut<Assets<EffectAsset>>,
+    mut break_effect_res: ResMut<BreakEffect>,
+) {
+    let handle = break_effect(&mut effects);
+    break_effect_res.0 = Some(handle);
+}
+
 // break effect
-fn break_effect(effects: &mut Assets<EffectAsset>, position: Vec3) -> Handle<EffectAsset> {
+fn break_effect(effects: &mut Assets<EffectAsset>) -> Handle<EffectAsset> {
     let mut gradient = bevy_hanabi::Gradient::new();
     gradient.add_key(0.0, Vec4::new(1., 0., 0., 1.));
     gradient.add_key(1.0, Vec4::ZERO);
@@ -100,7 +114,7 @@ fn break_effect(effects: &mut Assets<EffectAsset>, position: Vec3) -> Handle<Eff
     let mut module = Module::default();
 
     let init_pos = SetPositionCircleModifier {
-        center: module.lit(position),
+        center: module.lit(Vec3::ZERO),
         radius: module.lit(30.0),
         axis: module.lit(Vec3::Z),
         dimension: ShapeDimension::Surface,
@@ -112,13 +126,12 @@ fn break_effect(effects: &mut Assets<EffectAsset>, position: Vec3) -> Handle<Eff
         speed: module.lit(100.),
     };
 
-    let lifetime = module.lit(10.); // literal value "10.0"
+    let lifetime = module.lit(1.); // literal value "10.0"
     let init_lifetime = SetAttributeModifier::new(Attribute::LIFETIME, lifetime);
     let effect = EffectAsset::new(
         // Maximum number of particles alive at a time
         32768,
-        // Spawn at a rate of 5 particles per second
-        SpawnerSettings::once(10.0.into()),
+        SpawnerSettings::once(100.0.into()),
         // Move the expression module into the asset
         module,
     )
