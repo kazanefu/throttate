@@ -11,6 +11,7 @@ mod state;
 mod utils;
 mod playing;
 mod result;
+mod action_effect;
 
 pub use utils::*;
 
@@ -32,6 +33,7 @@ fn main() {
         .add_plugins(playing::PlayingPlugin)
         .add_plugins(course_selection::CourseSelectionPlugin)
         .add_plugins(result::ResultPlugin)
+        .add_plugins(action_effect::ActionEffectPlugin)
         .run();
 }
 
