@@ -8,7 +8,7 @@ impl Plugin for BreakableBoxPlugin {
     fn build(&self, app: &mut App) {
         app.add_message::<FireBreakEffect>()
             .insert_resource(BreakEffect(None))
-            .add_systems(Startup,setup_break_effect)
+            .add_systems(Startup, setup_break_effect)
             .add_systems(Update, (breakable_system, handle_break_effect));
     }
 }
@@ -94,7 +94,7 @@ fn handle_break_effect(
     }
 }
 
-#[derive(Resource,Clone)]
+#[derive(Resource, Clone)]
 struct BreakEffect(Option<Handle<EffectAsset>>);
 
 fn setup_break_effect(
@@ -108,8 +108,8 @@ fn setup_break_effect(
 // break effect
 fn break_effect(effects: &mut Assets<EffectAsset>) -> Handle<EffectAsset> {
     let mut gradient = bevy_hanabi::Gradient::new();
-    gradient.add_key(0.0, Vec4::new(1., 0., 0., 1.));
-    gradient.add_key(1.0, Vec4::ZERO);
+    gradient.add_key(0.0, Vec4::new(1.0, 1.0, 0.0, 1.));
+    gradient.add_key(1.0, Vec4::new(1.0,1.0,1.0,0.01));
 
     let mut module = Module::default();
 
@@ -141,8 +141,16 @@ fn break_effect(effects: &mut Assets<EffectAsset>) -> Handle<EffectAsset> {
     .init(init_lifetime)
     .render(ColorOverLifetimeModifier {
         gradient: gradient.into(),
-        blend: ColorBlendMode::Overwrite,
+        blend: ColorBlendMode::Modulate,
         mask: ColorBlendMask::RGBA,
+    })
+    .render(SizeOverLifetimeModifier {
+        gradient: bevy_hanabi::Gradient::from_keys(vec![
+            (0.0, Vec3::splat(15.0)), // 最初大きい
+            (1.0, Vec3::splat(0.0)),  // 消える
+        ])
+        .into(),
+        screen_space_size: false,
     });
 
     let effect_asset = effects.add(effect);
