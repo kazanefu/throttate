@@ -1,10 +1,12 @@
+use bevy_hanabi::prelude::*;
+
 use super::*;
 
 pub struct BreakableBoxPlugin;
 
 impl Plugin for BreakableBoxPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Update, breakable_system);
+        app.add_message::<FireBreakEffect>().add_systems(Update, (breakable_system,handle_break_effect));
     }
 }
 
@@ -33,11 +35,16 @@ pub fn breakable_box_bundle(x: f32, y: f32, required_speed: f32) -> impl Bundle 
     )
 }
 
+#[derive(Message)]
+struct FireBreakEffect(Vec3);
+
 fn breakable_system(
     mut commands: Commands,
     mut collision_events: MessageReader<CollisionEvent>,
     breakable_query: Query<(Entity, &Breakable)>,
     velocity_query: Query<&Velocity>,
+    transform_query: Query<&Transform>,
+    mut fire_break_effect: MessageWriter<FireBreakEffect>,
 ) {
     for event in collision_events.read() {
         if let CollisionEvent::Started(e1, e2, _) = event {
@@ -60,8 +67,71 @@ fn breakable_system(
                 (None, None) => 0.0,
             };
             if speed >= breakable.required_speed {
+                let position = transform_query
+                    .get(break_entity)
+                    .expect("break_entity don't have transform")
+                    .translation;
+                fire_break_effect.write(FireBreakEffect(position));
                 commands.entity(break_entity).despawn();
             }
         }
     }
+}
+
+fn handle_break_effect(
+    mut commands: Commands,
+    mut effects: ResMut<Assets<EffectAsset>>,
+    mut fire_message: MessageReader<FireBreakEffect>,
+) {
+    for position in fire_message.read() {
+        commands.spawn((
+            ParticleEffect::new(break_effect(&mut effects, position.0)),
+            Transform::from_translation(Vec3::ZERO),
+        ));
+    }
+}
+
+// break effect
+fn break_effect(effects: &mut Assets<EffectAsset>, position: Vec3) -> Handle<EffectAsset> {
+    let mut gradient = bevy_hanabi::Gradient::new();
+    gradient.add_key(0.0, Vec4::new(1., 0., 0., 1.));
+    gradient.add_key(1.0, Vec4::ZERO);
+
+    let mut module = Module::default();
+
+    let init_pos = SetPositionCircleModifier {
+        center: module.lit(position),
+        radius: module.lit(30.0),
+        axis: module.lit(Vec3::Z),
+        dimension: ShapeDimension::Surface,
+    };
+
+    let init_vel = SetVelocityCircleModifier {
+        center: module.lit(Vec3::ZERO),
+        axis: module.lit(Vec3::Z),
+        speed: module.lit(100.),
+    };
+
+    let lifetime = module.lit(10.); // literal value "10.0"
+    let init_lifetime = SetAttributeModifier::new(Attribute::LIFETIME, lifetime);
+    let effect = EffectAsset::new(
+        // Maximum number of particles alive at a time
+        32768,
+        // Spawn at a rate of 5 particles per second
+        SpawnerSettings::once(10.0.into()),
+        // Move the expression module into the asset
+        module,
+    )
+    .with_name("berak_effect")
+    .init(init_pos)
+    .init(init_vel)
+    .init(init_lifetime)
+    .render(ColorOverLifetimeModifier {
+        gradient: gradient.into(),
+        blend: ColorBlendMode::Overwrite,
+        mask: ColorBlendMask::RGBA,
+    });
+
+    let effect_asset = effects.add(effect);
+    effect_asset
 }
