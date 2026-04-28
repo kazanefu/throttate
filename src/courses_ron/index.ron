@@ -5,5 +5,6 @@
         (id: 2, name: "Advanced(Gemini作)", path: "test3.ron"),
         (id: 3, name: "Insane(Gemini作)", path: "test4.ron"),
         (id: 4, name: "Ultimate(Gemini作)", path: "test5.ron"),
+        (id: 5, name: "1-1", path: "course_1_1.ron"),
     ]
 )
