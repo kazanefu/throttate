@@ -109,7 +109,8 @@ pub struct CheckPointEffect(pub Option<Handle<EffectAsset>>);
 pub fn handle_checkpoint_effect(
     mut commands: Commands,
     effect: Res<CheckPointEffect>,
-    mut fire_message: MessageReader<FireCheckPointEffect>
+    mut fire_message: MessageReader<FireCheckPointEffect>,
+    mut count: Local<i32>,
 ) {
     for position in fire_message.read() {
         commands.spawn((
@@ -117,6 +118,8 @@ pub fn handle_checkpoint_effect(
             Transform::from_translation(position.0),
             DespawnWithTime(5.0),
         ));
+        *count += 1;
+        println!("reach checkpoint{}", *count);
     }
 }
 

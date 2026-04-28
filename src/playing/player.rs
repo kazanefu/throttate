@@ -12,7 +12,7 @@ impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
         app.add_message::<ReachedGoalMessage>().add_systems(
             Update,
-            (handle_death, reach_checkpoint, reach_goal)
+            (handle_death, reach_checkpoint, reach_goal, respawn)
                 .run_if(in_state(GameState::Playing).and(in_state(RunningState::Running))),
         );
     }
@@ -65,6 +65,26 @@ fn handle_death(
             }
             CollisionEvent::Stopped(_e1, _e2, _) => {}
         }
+    }
+}
+
+fn respawn(
+    mut commands: Commands,
+    mut player_query: Query<(&mut Transform, &TargetCheckPoint, Entity, &mut Hammer)>,
+    mut hammer_action_writer: MessageWriter<HammerFreeMessage>,
+    keys: Res<ButtonInput<KeyCode>>,
+) {
+    if !keys.just_pressed(KeyCode::KeyR) {
+        return;
+    }
+    for (mut transform, checkpoint, entity, mut hammer) in &mut player_query {
+        hammer_action_writer.write(HammerFreeMessage);
+        if matches!(hammer.state, HammerState::Spinning) {
+            commands.entity(entity).remove::<ImpulseJoint>();
+            hammer.state = HammerState::Flying;
+        }
+        transform.translation = checkpoint.position;
+        
     }
 }
 
