@@ -37,7 +37,7 @@ pub fn trail_effect_bundle(effects: &mut Assets<EffectAsset>) -> impl Bundle {
         // Move the expression module into the asset
         module,
     )
-    .with_name("berak_effect")
+    .with_name("trail_effect")
     .init(init_pos)
     .init(init_vel)
     .init(init_lifetime)

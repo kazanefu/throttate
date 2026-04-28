@@ -1,12 +1,15 @@
-use bevy::prelude::*;
 use crate::state::RunningState;
+use bevy::prelude::*;
 pub const FONT_PATH: &str = "embedded://throtate/fonts/NotoSansJP-Bold.ttf";
 
 pub struct UtilityPlugin;
 
 impl Plugin for UtilityPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Update, (tick_interval, update_stopwatch).run_if(in_state(RunningState::Running)));
+        app.add_systems(
+            Update,
+            (tick_interval, update_stopwatch).run_if(in_state(RunningState::Running)),
+        );
     }
 }
 
@@ -68,6 +71,23 @@ pub fn update_stopwatch(time: Res<Time>, mut stopwatch_query: Query<&mut StopWat
     for mut stopwatch in &mut stopwatch_query {
         if stopwatch.is_running() {
             stopwatch.time += time.delta_secs();
+        }
+    }
+}
+
+#[derive(Component)]
+pub struct DespawnWithTime(pub f32);
+
+pub fn update_despawn_timer(time: Res<Time>, mut despawn_timer_query: Query<&mut DespawnWithTime>) {
+    for mut despawn_timer in &mut despawn_timer_query {
+        despawn_timer.0 -= time.delta_secs();
+    }
+}
+
+pub fn despawn_timeout_entity(mut commands: Commands, query: Query<(Entity, &DespawnWithTime)>) {
+    for (entity, timer) in &query {
+        if timer.0 <= 0.0 {
+            commands.entity(entity).despawn();
         }
     }
 }

@@ -1,5 +1,8 @@
 use crate::{
-    action_effect::FireDeathEffect, course::course_items::{checkpoint::CheckPoint, death_box::Death, goal::Goal}, hammer::definition::{Hammer, HammerFreeMessage, HammerState}, state::{GameState, RunningState}
+    action_effect::{FireCheckPointEffect, FireDeathEffect},
+    course::course_items::{checkpoint::CheckPoint, death_box::Death, goal::Goal},
+    hammer::definition::{Hammer, HammerFreeMessage, HammerState},
+    state::{GameState, RunningState},
 };
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
@@ -78,6 +81,7 @@ fn reach_checkpoint(
     mut player_query: Query<(Entity, &mut TargetCheckPoint)>,
     mut collision_event: MessageReader<CollisionEvent>,
     checkpoint_query: Query<(&CheckPoint, &Transform)>,
+    mut checkpoint_effect_writer: MessageWriter<FireCheckPointEffect>,
 ) {
     for &event in collision_event.read() {
         for (player_entity, mut target_checkpoint) in &mut player_query {
@@ -92,7 +96,12 @@ fn reach_checkpoint(
                 );
                 if checkpoint.0.priority() >= target_checkpoint.priority {
                     target_checkpoint.priority = checkpoint.0.priority();
+                    let prev_position = target_checkpoint.position;
                     target_checkpoint.position = checkpoint.1.translation;
+                    if prev_position != target_checkpoint.position {
+                        checkpoint_effect_writer
+                            .write(FireCheckPointEffect(target_checkpoint.position));
+                    }
                 }
             }
         }
