@@ -62,7 +62,7 @@ pub enum EntityKind {
 #[derive(Deserialize, Default)]
 pub struct CourseList(pub Vec<CourseEntry>);
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Clone)]
 pub struct CourseEntry {
     pub id: usize,
     pub name: String,
