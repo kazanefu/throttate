@@ -57,8 +57,9 @@ use crate::ui_utils::*;
 fn spawn_playing_ui(mut commands: Commands, asset_server: Res<AssetServer>) {
     let canvas = commands.spawn(root_canvas_bundle(GameState::Playing)).id();
     commands.entity(canvas).insert(Node {
-        align_items: AlignItems::FlexEnd,
+        align_items: AlignItems::FlexStart,
         justify_content: JustifyContent::FlexStart,
+        flex_direction: FlexDirection::Column,
         ..default()
     });
     let time_ui = commands.spawn(time_ui_bundle(&asset_server)).id();

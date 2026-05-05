@@ -1,6 +1,6 @@
-use bevy::prelude::*;
 use crate::utils::FONT_PATH;
 use bevy::input::mouse::MouseWheel;
+use bevy::prelude::*;
 
 pub struct UiUtilsPlugin;
 
@@ -10,8 +10,12 @@ impl Plugin for UiUtilsPlugin {
     }
 }
 
-pub type InteractionQuery<'w, 's, T> =
-    Query<'w, 's, (&'static Interaction, &'static mut BackgroundColor), (Changed<Interaction>, With<T>)>;
+pub type InteractionQuery<'w, 's, T> = Query<
+    'w,
+    's,
+    (&'static Interaction, &'static mut BackgroundColor),
+    (Changed<Interaction>, With<T>),
+>;
 
 /// A generic system for button interaction visuals.
 pub fn generic_button_system<T: Component>(
