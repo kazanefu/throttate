@@ -107,13 +107,12 @@ fn reach_goal(
     goal_query: Query<(), With<Goal>>,
 ) {
     for &event in collision_event.read() {
-        if let CollisionEvent::Started(e1, e2, _) = event {
-            if get_contained_entity(e1, e2, &player_query).is_some()
-                && get_contained_entity(e1, e2, &goal_query).is_some()
-            {
-                reach_message.write(ReachedGoalMessage);
-                println!("Player reached the goal!");
-            }
+        if let CollisionEvent::Started(e1, e2, _) = event
+            && get_contained_entity(e1, e2, &player_query).is_some()
+            && get_contained_entity(e1, e2, &goal_query).is_some()
+        {
+            reach_message.write(ReachedGoalMessage);
+            println!("Player reached the goal!");
         }
     }
 }
