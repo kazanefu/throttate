@@ -49,5 +49,5 @@ impl Default for InputSetting {
 pub struct GameConfig {
     pub player_setting: PlayerSetting,
     pub course_setting: CourseSetting,
-    pub input_setting: InputSetting,
+    pub input: InputSetting,
 }

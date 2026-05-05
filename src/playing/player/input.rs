@@ -19,7 +19,7 @@ fn handle_respawn(
     mut message: MessageWriter<RespawnMessage>,
     input_setting: Res<GameConfig>,
 ) {
-    if keys.just_pressed(input_setting.input_setting.respawn) {
+    if keys.just_pressed(input_setting.input.respawn) {
         message.write(RespawnMessage);
     }
 }
