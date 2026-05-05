@@ -4,6 +4,7 @@ use crate::playing::score::Score;
 use crate::state::*;
 use crate::utils::*;
 use bevy::prelude::*;
+
 pub struct PlayingUiPlugin;
 
 impl Plugin for PlayingUiPlugin {
@@ -23,7 +24,7 @@ struct TimeUi;
 #[derive(Component)]
 struct DeathCountUi;
 
-fn playing_camvas_bundle() -> impl Bundle {
+fn playing_canvas_bundle() -> impl Bundle {
     (
         DespawnOnExit(GameState::Playing),
         Node {
@@ -66,10 +67,10 @@ fn death_count_ui_bundle(asset_server: &AssetServer) -> impl Bundle {
 }
 
 fn spawn_playing_ui(mut commands: Commands, asset_server: Res<AssetServer>) {
-    let canvas = commands.spawn(playing_camvas_bundle()).id();
+    let canvas = commands.spawn(playing_canvas_bundle()).id();
     let time_ui = commands.spawn(time_ui_bundle(&asset_server)).id();
-    let stopwatct = commands.spawn(StopWatch::new(true)).id();
-    commands.entity(time_ui).add_child(stopwatct);
+    let stopwatch = commands.spawn(StopWatch::new(true)).id();
+    commands.entity(time_ui).add_child(stopwatch);
     let death_count_ui = commands.spawn(death_count_ui_bundle(&asset_server)).id();
     commands
         .entity(canvas)
@@ -81,12 +82,11 @@ fn update_time_ui(
     stopwatch_query: Query<&StopWatch>,
     mut time_score: ResMut<Score>,
 ) {
-    let time = if let Ok(stopwatch) = stopwatch_query.single() {
-        stopwatch.now()
-    } else {
-        warn!("find none or multiple stopwatch in world");
+    let Ok(stopwatch) = stopwatch_query.single() else {
+        warn!("Found none or multiple stopwatch in world");
         return;
     };
+    let time = stopwatch.now();
     for mut time_ui_text in &mut time_ui_query {
         **time_ui_text = format!("タイム: {:.2}", time);
         time_score.time = time;
@@ -98,13 +98,12 @@ fn update_death_count_ui(
     death_count_query: Query<&DeathCount, (With<Player>, Changed<DeathCount>)>,
     mut death_score: ResMut<Score>,
 ) {
-    let death_count = if let Ok(death_count) = death_count_query.single() {
-        death_count.0
-    } else {
+    let Ok(death_count) = death_count_query.single() else {
         return;
     };
+    let count = death_count.0;
     for mut text in &mut death_count_ui_query {
-        **text = format!("死亡数 {}", death_count);
-        death_score.death = death_count;
+        **text = format!("死亡数 {}", count);
+        death_score.death = count;
     }
 }

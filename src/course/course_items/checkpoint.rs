@@ -6,7 +6,6 @@ pub struct CheckPoint {
 
 
 impl CheckPoint {
-    pub const ZERO: Self = Self { priority: 0 };
     pub fn new(priority: u32) -> Self {
         Self { priority }
     }

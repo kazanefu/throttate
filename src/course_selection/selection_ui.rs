@@ -1,7 +1,7 @@
 use crate::course::CourseEntry;
-use crate::course_selection::resources::SelectedCourseID;
 use crate::{course::CourseListResource, state::GameState, *};
-use bevy::input::mouse::MouseWheel;
+use super::systems::*;
+
 pub struct SelectionUiPlugin;
 
 impl Plugin for SelectionUiPlugin {
@@ -25,10 +25,16 @@ const SELECTION_EXPLANATION: &str = r#"
 "#;
 
 #[derive(Component)]
-struct ConfirmButton;
+pub struct ConfirmButton;
 
 #[derive(Component)]
-struct ConfirmButtonText;
+pub struct ConfirmButtonText;
+
+#[derive(Component)]
+pub struct ScrollContent;
+
+#[derive(Component)]
+pub struct CourseListButton(pub usize);
 
 fn confirm_ui_bundle(asset_server: &AssetServer) -> impl Bundle {
     (
@@ -84,9 +90,6 @@ fn selection_canvas_bundle() -> impl Bundle {
     )
 }
 
-#[derive(Component)]
-pub struct ScrollContent;
-
 fn selection_sub_canvas_bundle() -> impl Bundle {
     (
         ScrollContent,
@@ -115,9 +118,6 @@ fn course_list_button_node_bundle(len: usize) -> impl Bundle {
         ..default()
     },)
 }
-
-#[derive(Component)]
-struct CourseListButton(usize);
 
 fn course_list_button_bundle(
     asset_server: &AssetServer,
@@ -183,91 +183,4 @@ fn spawn_selection_ui(
         course_list_button,
     ]);
     commands.entity(canvas).add_child(sub_canvas);
-}
-
-fn scroll_system(
-    mut wheel: MessageReader<MouseWheel>,
-    mut query: Query<&mut Node, With<ScrollContent>>,
-    mut offset: Local<f32>,
-) {
-    for ev in wheel.read() {
-        *offset += ev.y * 20.0;
-
-        *offset = offset.clamp(-1000.0, 1000.0);
-
-        for mut node in &mut query {
-            node.top = Val::Px(*offset);
-        }
-    }
-}
-
-fn update_course_list_buttons(
-    mut button_query: Query<
-        (&Interaction, &mut BackgroundColor, &CourseListButton),
-        Changed<Interaction>,
-    >,
-    mut selected_id: ResMut<SelectedCourseID>,
-) {
-    for (interaction, mut background_color, button) in &mut button_query {
-        match interaction {
-            Interaction::Pressed => {
-                selected_id.0 = Some(button.0);
-                background_color.0 = Color::srgb(0.2, 0.2, 0.2);
-            }
-            Interaction::Hovered => {
-                background_color.0 = Color::srgb(0.0, 0.9, 0.0);
-            }
-            Interaction::None => {
-                background_color.0 = Color::srgb(0.1, 0.9, 0.2);
-            }
-        }
-    }
-}
-
-fn update_confirm_button_text(
-    mut text_query: Query<&mut Text, With<ConfirmButtonText>>,
-    selected_id: Res<SelectedCourseID>,
-    course_list_res: Res<CourseListResource>,
-) {
-    let name = if let Some(id) = selected_id.0 {
-        course_list_res
-            .0
-            .iter()
-            .find(|x| x.0.id == id)
-            .expect("such id course doesn't exists")
-            .0
-            .name
-            .clone()
-    } else {
-        "None".to_string()
-    };
-    for mut text in &mut text_query {
-        **text = format!("決定: {}", name);
-    }
-}
-
-type ConfirmButtonInputs = (Changed<Interaction>, With<ConfirmButton>);
-
-fn update_confirm_button(
-    mut button_query: Query<(&Interaction, &mut BackgroundColor), ConfirmButtonInputs>,
-    selected_id: Res<SelectedCourseID>,
-    mut game_state: ResMut<NextState<GameState>>,
-) {
-    if selected_id.0.is_none() {
-        return;
-    }
-    for (interaction, mut background_color) in &mut button_query {
-        match interaction {
-            Interaction::Pressed => {
-                background_color.0 = Color::srgb(0.2, 0.2, 0.5);
-                game_state.set(GameState::Playing);
-            }
-            Interaction::Hovered => {
-                background_color.0 = Color::srgb(0.0, 0.9, 0.9);
-            }
-            Interaction::None => {
-                background_color.0 = Color::srgb(0.1, 0.9, 0.9);
-            }
-        }
-    }
 }

@@ -6,6 +6,7 @@ use crate::{
 };
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
+
 pub struct PlayerPlugin;
 
 impl Plugin for PlayerPlugin {
@@ -30,40 +31,51 @@ pub struct TargetCheckPoint {
     pub priority: u32,
 }
 
+#[derive(Message)]
+pub struct ReachedGoalMessage;
+
+/// Returns the other entity if one of them is the player.
+fn get_player_collision(e1: Entity, e2: Entity, player: Entity) -> Option<Entity> {
+    if e1 == player {
+        Some(e2)
+    } else if e2 == player {
+        Some(e1)
+    } else {
+        None
+    }
+}
+
 fn handle_death(
     mut commands: Commands,
     mut hammer_query: Query<&mut Hammer>,
-    mut player_query: Query<
-        (&mut DeathCount, &mut Transform, &TargetCheckPoint, Entity),
-        With<Player>,
-    >,
+    mut player_query: Query<(&mut DeathCount, &mut Transform, &TargetCheckPoint, Entity), With<Player>>,
     death_query: Query<&Death>,
     mut collision_event: MessageReader<CollisionEvent>,
     mut hammer_action_writer: MessageWriter<HammerFreeMessage>,
-    mut death_writer: MessageWriter<crate::action_effect::FireDeathEffect>,
+    mut death_writer: MessageWriter<FireDeathEffect>,
 ) {
-    let mut player = player_query
-        .single_mut()
-        .expect("found none or multiple player in the world");
+    let Ok((mut death_count, mut transform, checkpoint, player_entity)) = player_query.single_mut() else {
+        return;
+    };
+
     for event in collision_event.read() {
-        match *event {
-            CollisionEvent::Started(e1, e2, _) => {
-                if (player.3 == e1 && death_query.get(e2).is_ok())
-                    || (player.3 == e2 && death_query.get(e1).is_ok())
-                {
+        if let CollisionEvent::Started(e1, e2, _) = *event {
+            if let Some(other) = get_player_collision(e1, e2, player_entity) {
+                if death_query.get(other).is_ok() {
+                    // Reset hammer
                     hammer_action_writer.write(HammerFreeMessage);
                     for mut hammer in &mut hammer_query {
                         if matches!(hammer.state, HammerState::Spinning) {
-                            commands.entity(player.3).remove::<ImpulseJoint>();
+                            commands.entity(player_entity).remove::<ImpulseJoint>();
                             hammer.state = HammerState::Flying;
                         }
                     }
-                    death_writer.write(FireDeathEffect(player.1.translation));
-                    player.0.0 += 1;
-                    player.1.translation = player.2.position;
+                    // Fire effect and respawn
+                    death_writer.write(FireDeathEffect(transform.translation));
+                    death_count.0 += 1;
+                    transform.translation = checkpoint.position;
                 }
             }
-            CollisionEvent::Stopped(_e1, _e2, _) => {}
         }
     }
 }
@@ -84,43 +96,31 @@ fn respawn(
             hammer.state = HammerState::Flying;
         }
         transform.translation = checkpoint.position;
-        
     }
 }
 
-const DUMMY_CHECK_POINT: (CheckPoint, Transform) = (
-    CheckPoint::ZERO,
-    Transform {
-        translation: Vec3::ZERO,
-        rotation: Quat::IDENTITY,
-        scale: Vec3::ONE,
-    },
-);
-
 fn reach_checkpoint(
-    mut player_query: Query<(Entity, &mut TargetCheckPoint)>,
+    mut player_query: Query<(Entity, &mut TargetCheckPoint), With<Player>>,
     mut collision_event: MessageReader<CollisionEvent>,
     checkpoint_query: Query<(&CheckPoint, &Transform)>,
     mut checkpoint_effect_writer: MessageWriter<FireCheckPointEffect>,
 ) {
-    for &event in collision_event.read() {
-        for (player_entity, mut target_checkpoint) in &mut player_query {
-            if let CollisionEvent::Started(e1, e2, _) = event {
-                if e1 != player_entity && e2 != player_entity {
-                    break;
-                }
-                let checkpoint = checkpoint_query.get(e1).unwrap_or(
-                    checkpoint_query
-                        .get(e2)
-                        .unwrap_or((&DUMMY_CHECK_POINT.0, &DUMMY_CHECK_POINT.1)),
-                );
-                if checkpoint.0.priority() >= target_checkpoint.priority {
-                    target_checkpoint.priority = checkpoint.0.priority();
-                    let prev_position = target_checkpoint.position;
-                    target_checkpoint.position = checkpoint.1.translation;
-                    if prev_position != target_checkpoint.position {
-                        checkpoint_effect_writer
-                            .write(FireCheckPointEffect(target_checkpoint.position));
+    let Ok((player_entity, mut target_checkpoint)) = player_query.single_mut() else {
+        return;
+    };
+
+    for event in collision_event.read() {
+        if let CollisionEvent::Started(e1, e2, _) = *event {
+            if let Some(other) = get_player_collision(e1, e2, player_entity) {
+                if let Ok((checkpoint, transform)) = checkpoint_query.get(other) {
+                    if checkpoint.priority() >= target_checkpoint.priority {
+                        let prev_position = target_checkpoint.position;
+                        target_checkpoint.priority = checkpoint.priority();
+                        target_checkpoint.position = transform.translation;
+                        
+                        if prev_position != target_checkpoint.position {
+                            checkpoint_effect_writer.write(FireCheckPointEffect(target_checkpoint.position));
+                        }
                     }
                 }
             }
@@ -128,29 +128,24 @@ fn reach_checkpoint(
     }
 }
 
-#[derive(Message)]
-pub struct ReachedGoalMessage;
-
 fn reach_goal(
     mut reach_message: MessageWriter<ReachedGoalMessage>,
     mut collision_event: MessageReader<CollisionEvent>,
     player_query: Query<Entity, With<Player>>,
     goal_query: Query<(), With<Goal>>,
 ) {
-    for &event in collision_event.read() {
-        let player_entity = match player_query.single() {
-            Ok(entity) => entity,
-            Err(_) => return,
-        };
-        if let CollisionEvent::Started(e1, e2, _) = event {
-            if e1 != player_entity && e2 != player_entity {
-                break;
+    let Ok(player_entity) = player_query.single() else {
+        return;
+    };
+
+    for event in collision_event.read() {
+        if let CollisionEvent::Started(e1, e2, _) = *event {
+            if let Some(other) = get_player_collision(e1, e2, player_entity) {
+                if goal_query.get(other).is_ok() {
+                    reach_message.write(ReachedGoalMessage);
+                    println!("goal reached!");
+                }
             }
-            if goal_query.get(e1).is_err() && goal_query.get(e2).is_err() {
-                break;
-            }
-            reach_message.write(ReachedGoalMessage);
-            println!("goal");
         }
     }
 }

@@ -8,7 +8,7 @@ impl Plugin for UtilityPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             Update,
-            (tick_interval, update_stopwatch, update_despawn_timer, despawn_timeout_entity).run_if(in_state(RunningState::Running)),
+            (tick_interval, update_stopwatch, handle_despawn_timer).run_if(in_state(RunningState::Running)),
         );
     }
 }
@@ -78,14 +78,13 @@ pub fn update_stopwatch(time: Res<Time>, mut stopwatch_query: Query<&mut StopWat
 #[derive(Component)]
 pub struct DespawnWithTime(pub f32);
 
-pub fn update_despawn_timer(time: Res<Time>, mut despawn_timer_query: Query<&mut DespawnWithTime>) {
-    for mut despawn_timer in &mut despawn_timer_query {
-        despawn_timer.0 -= time.delta_secs();
-    }
-}
-
-pub fn despawn_timeout_entity(mut commands: Commands, query: Query<(Entity, &DespawnWithTime)>) {
-    for (entity, timer) in &query {
+pub fn handle_despawn_timer(
+    mut commands: Commands,
+    time: Res<Time>,
+    mut query: Query<(Entity, &mut DespawnWithTime)>,
+) {
+    for (entity, mut timer) in &mut query {
+        timer.0 -= time.delta_secs();
         if timer.0 <= 0.0 {
             commands.entity(entity).despawn();
         }
