@@ -23,7 +23,7 @@ pub fn spawn_course_from_id(
                 let course_entity = commands.spawn((
                     CourseID::new(*id),
                     Transform::from_xyz(0.0, 0.0, 0.0),
-                    crate::DespawnOnExit(crate::state::GameState::Playing),
+                    DespawnOnExit(GameState::Playing),
                 )).id();
                 for entity in &course.entities {
                     let item_entity = spawn_course_from_entities(&mut commands, entity, &asset_server).id();

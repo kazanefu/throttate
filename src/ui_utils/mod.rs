@@ -60,7 +60,7 @@ pub fn scroll_system(
 
 pub fn root_canvas_bundle(despawn_state: impl States) -> impl Bundle {
     (
-        crate::DespawnOnExit(despawn_state),
+        DespawnOnExit(despawn_state),
         Node {
             width: Val::Percent(100.0),
             height: Val::Percent(100.0),

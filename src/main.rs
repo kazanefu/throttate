@@ -1,5 +1,5 @@
-#![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 use bevy::prelude::*;
+
 use bevy_rapier2d::prelude::*;
 use bevy_hanabi::prelude::*;
 

@@ -20,7 +20,10 @@ impl Plugin for CoursePlugin {
             .add_message::<SpawnCourseMessage>()
             .init_resource::<CourseLoadState>()
             .add_systems(OnEnter(GameState::Loading), start_load_courses)
-            .add_systems(Update, resolve_courses.run_if(in_state(GameState::Loading)))
+            .add_systems(
+                Update,
+                (load_index, check_and_finalize).run_if(in_state(GameState::Loading)),
+            )
             .add_systems(Update, spawn_course_from_id);
     }
 }
