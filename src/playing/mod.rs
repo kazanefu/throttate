@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 mod main_camera;
-mod player;
+pub mod player;
 mod startup;
 mod ui;
 mod exit;

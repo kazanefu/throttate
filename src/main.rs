@@ -12,6 +12,7 @@ mod utils;
 mod playing;
 mod result;
 mod action_effect;
+mod ui_utils;
 
 pub use utils::*;
 
@@ -25,6 +26,7 @@ fn main() {
         // .add_plugins(RapierDebugRenderPlugin::default())
         .add_plugins(HanabiPlugin)
         .add_plugins(utils::UtilityPlugin)
+        .add_plugins(ui_utils::UiUtilsPlugin)
         .init_state::<state::GameState>()
         .init_state::<state::RunningState>()
         .add_plugins(course::CoursePlugin)

@@ -24,20 +24,6 @@ struct TimeUi;
 #[derive(Component)]
 struct DeathCountUi;
 
-fn playing_canvas_bundle() -> impl Bundle {
-    (
-        DespawnOnExit(GameState::Playing),
-        Node {
-            width: percent(100),
-            height: percent(100),
-            align_items: AlignItems::FlexEnd,
-            justify_content: JustifyContent::FlexStart,
-            flex_direction: FlexDirection::Column,
-            ..default()
-        },
-    )
-}
-
 fn time_ui_bundle(asset_server: &AssetServer) -> impl Bundle {
     (
         Text::new(""),
@@ -66,8 +52,15 @@ fn death_count_ui_bundle(asset_server: &AssetServer) -> impl Bundle {
     )
 }
 
+use crate::ui_utils::*;
+
 fn spawn_playing_ui(mut commands: Commands, asset_server: Res<AssetServer>) {
-    let canvas = commands.spawn(playing_canvas_bundle()).id();
+    let canvas = commands.spawn(root_canvas_bundle(GameState::Playing)).id();
+    commands.entity(canvas).insert(Node {
+        align_items: AlignItems::FlexEnd,
+        justify_content: JustifyContent::FlexStart,
+        ..default()
+    });
     let time_ui = commands.spawn(time_ui_bundle(&asset_server)).id();
     let stopwatch = commands.spawn(StopWatch::new(true)).id();
     commands.entity(time_ui).add_child(stopwatch);

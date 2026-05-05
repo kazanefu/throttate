@@ -1,23 +1,9 @@
-use bevy::prelude::*;
-use bevy::input::mouse::MouseWheel;
+use super::resources::SelectedCourseID;
+use super::selection_ui::{ConfirmButton, ConfirmButtonText, CourseListButton};
 use crate::course::CourseListResource;
 use crate::state::GameState;
-use super::resources::SelectedCourseID;
-use super::selection_ui::{ConfirmButton, ConfirmButtonText, CourseListButton, ScrollContent};
+use bevy::prelude::*;
 
-pub fn scroll_system(
-    mut wheel: MessageReader<MouseWheel>,
-    mut query: Query<&mut Node, With<ScrollContent>>,
-    mut offset: Local<f32>,
-) {
-    for ev in wheel.read() {
-        *offset += ev.y * 20.0;
-        *offset = offset.clamp(-1000.0, 1000.0);
-        for mut node in &mut query {
-            node.top = Val::Px(*offset);
-        }
-    }
-}
 
 pub fn update_course_list_buttons(
     mut button_query: Query<
@@ -62,8 +48,10 @@ pub fn update_confirm_button_text(
     }
 }
 
+use crate::ui_utils::InteractionQuery;
+
 pub fn update_confirm_button(
-    mut button_query: Query<(&Interaction, &mut BackgroundColor), (Changed<Interaction>, With<ConfirmButton>)>,
+    mut button_query: InteractionQuery<ConfirmButton>,
     selected_id: Res<SelectedCourseID>,
     mut game_state: ResMut<NextState<GameState>>,
 ) {

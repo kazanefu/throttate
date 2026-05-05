@@ -1,6 +1,7 @@
 use crate::FONT_PATH;
 use crate::playing::score::Score;
 use crate::state::GameState;
+use crate::ui_utils::*;
 use bevy::prelude::*;
 
 pub struct ResultUiPlugin;
@@ -10,7 +11,15 @@ impl Plugin for ResultUiPlugin {
         app.add_systems(OnEnter(GameState::Result), spawn_result_ui)
             .add_systems(
                 Update,
-                update_continue_button.run_if(in_state(GameState::Result)),
+                (
+                    generic_button_system::<ContinueButton>(
+                        Color::srgb(0.5, 0.5, 0.2),
+                        Color::srgb(0.8, 0.8, 0.2),
+                        Color::srgb(1.0, 1.0, 0.2),
+                    ),
+                    update_continue_button_logic,
+                )
+                    .run_if(in_state(GameState::Result)),
             );
     }
 }
@@ -18,37 +27,8 @@ impl Plugin for ResultUiPlugin {
 #[derive(Component)]
 struct ContinueButton;
 
-fn continue_button_bundle(asset_server: &AssetServer) -> impl Bundle {
-    (
-        Button,
-        ContinueButton,
-        Node {
-            width: percent(40),
-            height: percent(10),
-            justify_content: JustifyContent::Center,
-            align_items: AlignItems::Center,
-            ..default()
-        },
-        BackgroundColor::default(),
-        children![(
-            Text::new("コンティニュー"),
-            TextFont {
-                font: asset_server.load(FONT_PATH),
-                font_size: 40.0,
-                ..default()
-            },
-            TextLayout::new_with_justify(Justify::Center),
-            TextColor(Color::srgb(0.0, 0.0, 0.0)),
-        )],
-    )
-}
-
-#[derive(Component)]
-struct ResultTextUi;
-
 fn result_text_bundle(asset_server: &AssetServer, score: &Score) -> impl Bundle {
     (
-        ResultTextUi,
         Node {
             flex_direction: FlexDirection::Column,
             ..default()
@@ -67,7 +47,7 @@ fn result_text_bundle(asset_server: &AssetServer, score: &Score) -> impl Bundle 
                         TextColor(Color::WHITE),
                     ),
                     (
-                        Text::new(format!("{}", score.time)),
+                        Text::new(format!("{:.2}", score.time)),
                         TextFont {
                             font: asset_server.load(FONT_PATH),
                             font_size: 40.0,
@@ -104,49 +84,37 @@ fn result_text_bundle(asset_server: &AssetServer, score: &Score) -> impl Bundle 
     )
 }
 
-fn result_canvas_bundle() -> impl Bundle {
-    (
-        DespawnOnExit(GameState::Result),
-        Node {
-            width: percent(100),
-            height: percent(100),
-            align_items: AlignItems::Center,
-            justify_content: JustifyContent::Center,
-            flex_direction: FlexDirection::Column,
-            ..default()
-        },
-    )
-}
-
 fn spawn_result_ui(mut commands: Commands, asset_server: Res<AssetServer>, score: Res<Score>) {
-    let canvas = commands.spawn(result_canvas_bundle()).id();
+    let canvas = commands.spawn(root_canvas_bundle(GameState::Result)).id();
     let text = commands
         .spawn(result_text_bundle(&asset_server, &score))
         .id();
-    let continue_button = commands.spawn(continue_button_bundle(&asset_server)).id();
+    let continue_button = commands
+        .spawn((
+            button_bundle(
+                &asset_server,
+                "コンティニュー",
+                Val::Percent(40.0),
+                Val::Percent(10.0),
+                40.0,
+                Color::srgb(0.5, 0.5, 0.2),
+                Color::srgb(0.0, 0.0, 0.0),
+            ),
+            ContinueButton,
+        ))
+        .id();
     commands
         .entity(canvas)
         .add_children(&[text, continue_button]);
 }
 
-type ContinueButtonInputs = (Changed<Interaction>, With<ContinueButton>);
-
-fn update_continue_button(
+fn update_continue_button_logic(
     mut game_state: ResMut<NextState<GameState>>,
-    mut query: Query<(&Interaction, &mut BackgroundColor), ContinueButtonInputs>,
+    query: Query<&Interaction, (Changed<Interaction>, With<ContinueButton>)>,
 ) {
-    for (interaction, mut background_color) in &mut query {
-        match interaction {
-            Interaction::Pressed => {
-                background_color.0 = Color::srgb(1.0, 1.0, 0.2);
-                game_state.set(GameState::CourseSelection);
-            }
-            Interaction::Hovered => {
-                background_color.0 = Color::srgb(0.8, 0.8, 0.2);
-            }
-            Interaction::None => {
-                background_color.0 = Color::srgb(0.5, 0.5, 0.2);
-            }
+    for interaction in &query {
+        if matches!(interaction, Interaction::Pressed) {
+            game_state.set(GameState::CourseSelection);
         }
     }
 }
