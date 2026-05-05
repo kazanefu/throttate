@@ -18,6 +18,6 @@ impl Plugin for PlayingPlugin {
             .add_plugins(player::PlayerPlugin)
             .add_plugins(score::ScorePlugin)
             .add_plugins(ui::PlayingUiPlugin)
-            .add_systems(Update, exit::exit.run_if(not(in_state(GameState::Start))));
+            .add_systems(Update, exit::exit.run_if(not(in_state(GameState::Start)).and(not(in_state(GameState::Loading)))));
     }
 }

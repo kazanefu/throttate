@@ -20,7 +20,11 @@ pub fn spawn_course_from_id(
             .find(|(course_entry, _course)| course_entry.id == *id);
         match course {
             Some((_course_entry, course)) => {
-                let course_entity = commands.spawn((CourseID::new(*id),Transform::from_xyz(0.0, 0.0, 0.0))).id();
+                let course_entity = commands.spawn((
+                    CourseID::new(*id),
+                    Transform::from_xyz(0.0, 0.0, 0.0),
+                    crate::DespawnOnExit(crate::state::GameState::Playing),
+                )).id();
                 for entity in &course.entities {
                     let item_entity = spawn_course_from_entities(&mut commands, entity, &asset_server).id();
                     commands.entity(course_entity).add_child(item_entity);

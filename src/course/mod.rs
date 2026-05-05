@@ -13,14 +13,15 @@ pub struct CoursePlugin;
 impl Plugin for CoursePlugin {
     fn build(&self, app: &mut App) {
         app.insert_resource(CourseListResource::default())
-            .init_asset::<asset_load::RonText>()
-            .register_asset_loader(asset_load::RonTextLoader)
+            .init_asset::<RonText>()
+            .register_asset_loader(RonTextLoader)
             .add_plugins(course_items::turret::TurretPlugin)
             .add_plugins(course_items::breakable_box::BreakableBoxPlugin)
             .add_message::<SpawnCourseMessage>()
-            .init_resource::<asset_load::CourseLoadState>()
-            .add_systems(OnEnter(GameState::Start), asset_load::start_load_courses)//init_courses_list_resource)
-            .add_systems(Update, (spawn_course_from_id, asset_load::resolve_courses));
+            .init_resource::<CourseLoadState>()
+            .add_systems(OnEnter(GameState::Loading), start_load_courses)
+            .add_systems(Update, resolve_courses.run_if(in_state(GameState::Loading)))
+            .add_systems(Update, spawn_course_from_id);
     }
 }
 

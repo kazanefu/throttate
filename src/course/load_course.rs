@@ -1,99 +1,104 @@
 use super::*;
-pub mod asset_load {
-    use super::*;
-    use bevy::asset::Asset;
-    use bevy::reflect::TypePath;
+use bevy::asset::Asset;
+use bevy::reflect::TypePath;
+use anyhow::Error;
+use bevy::asset::{AssetLoader, LoadContext, io::Reader};
 
-    #[derive(Asset, TypePath, Clone)]
-    pub struct RonText(pub String);
-    use anyhow::Error;
-    use bevy::asset::{AssetLoader, LoadContext, io::Reader};
+#[derive(Asset, TypePath, Clone)]
+pub struct RonText(pub String);
 
-    #[derive(Default, TypePath)]
-    pub struct RonTextLoader;
+#[derive(Default, TypePath)]
+pub struct RonTextLoader;
 
-    impl AssetLoader for RonTextLoader {
-        type Asset = RonText;
-        type Settings = ();
-        type Error = Error;
+impl AssetLoader for RonTextLoader {
+    type Asset = RonText;
+    type Settings = ();
+    type Error = Error;
 
-        async fn load(
-            &self,
-            reader: &mut dyn Reader,
-            _settings: &Self::Settings,
-            _ctx: &mut LoadContext<'_>,
-        ) -> Result<Self::Asset, Self::Error> {
-            let mut bytes = Vec::new();
-            reader.read_to_end(&mut bytes).await?;
+    async fn load(
+        &self,
+        reader: &mut dyn Reader,
+        _settings: &Self::Settings,
+        _ctx: &mut LoadContext<'_>,
+    ) -> Result<Self::Asset, Self::Error> {
+        let mut bytes = Vec::new();
+        reader.read_to_end(&mut bytes).await?;
 
-            let text = String::from_utf8(bytes)?;
-            Ok(RonText(text))
-        }
-
-        fn extensions(&self) -> &[&str] {
-            &["ron"]
-        }
+        let text = String::from_utf8(bytes)?;
+        Ok(RonText(text))
     }
 
-    #[derive(Resource, Default)]
-    pub struct CourseLoadState {
-        pub index: Option<Handle<RonText>>,
-        pub courses: Vec<(CourseEntry, Handle<RonText>)>,
-        pub loaded: bool,
+    fn extensions(&self) -> &[&str] {
+        &["ron"]
     }
-    pub fn start_load_courses(mut state: ResMut<CourseLoadState>, asset_server: Res<AssetServer>) {
-        state.index = Some(asset_server.load("courses_ron/index.ron"));
-        state.courses.clear();
-        state.loaded = false;
+}
+
+#[derive(Resource, Default)]
+pub struct CourseLoadState {
+    pub index: Option<Handle<RonText>>,
+    pub courses: Vec<(CourseEntry, Handle<RonText>)>,
+}
+
+pub fn start_load_courses(
+    mut state: ResMut<CourseLoadState>,
+    asset_server: Res<AssetServer>,
+    mut texts: ResMut<Assets<RonText>>,
+) {
+    if let Some(index_handle) = state.index.take() {
+        texts.remove(index_handle.id());
     }
-    pub fn resolve_courses(
-        mut state: ResMut<CourseLoadState>,
-        mut course_list_resource: ResMut<CourseListResource>,
-        texts: Res<Assets<RonText>>,
-        asset_server: Res<AssetServer>,
-    ) {
-        if state.loaded {
-            return;
-        }
-        let Some(index_handle) = &state.index else {
+    asset_server.reload("courses_ron/index.ron");
+    state.index = Some(asset_server.load("courses_ron/index.ron"));
+    state.courses.clear();
+}
+
+pub fn resolve_courses(
+    mut state: ResMut<CourseLoadState>,
+    mut course_list_resource: ResMut<CourseListResource>,
+    texts: Res<Assets<RonText>>,
+    asset_server: Res<AssetServer>,
+    mut next_state: ResMut<NextState<crate::state::GameState>>,
+) {
+    let Some(index_handle) = &state.index else {
+        return;
+    };
+
+    // indexがまだロードされてなければ待つ
+    let Some(index_text) = texts.get(index_handle) else {
+        return;
+    };
+
+    let list: CourseList = ron::de::from_str(&index_text.0).expect("parse index.ron failed");
+
+    // courseのロード開始（1回だけ）
+    if state.courses.is_empty() {
+        state.courses = list
+            .0
+            .iter()
+            .map(|entry| {
+                let handle = asset_server.load(format!("courses_ron/{}", entry.path));
+                (entry.clone(), handle)
+            })
+            .collect::<Vec<(CourseEntry, Handle<RonText>)>>();
+    }
+
+    // 全部ロード完了してるかチェック
+    let mut result = vec![];
+
+    for (entry, handle) in &state.courses {
+        let Some(text) = texts.get(handle) else {
             return;
         };
 
-        // indexがまだロードされてなければ待つ
-        let Some(index_text) = texts.get(index_handle) else {
-            return;
-        };
+        let course: Course = ron::de::from_str(&text.0).expect("parse course failed");
 
-        let list: CourseList = ron::de::from_str(&index_text.0).expect("parse index.ron failed");
-
-        // courseのロード開始（1回だけ）
-        if state.courses.is_empty() {
-            state.courses = list
-                .0
-                .iter()
-                .map(|entry| {
-                    let handle = asset_server.load(format!("courses_ron/{}", entry.path));
-                    (entry.clone(), handle)
-                })
-                .collect::<Vec<(CourseEntry, Handle<RonText>)>>();
-        }
-
-        // 全部ロード完了してるかチェック
-        let mut result = vec![];
-
-        for (entry, handle) in &state.courses {
-            let Some(text) = texts.get(handle) else {
-                return;
-            };
-
-            let course: Course = ron::de::from_str(&text.0).expect("parse course failed");
-
-            result.push((entry.clone(), course));
-        }
-
-        // ソートして反映
-        result.sort_by(|a, b| a.0.id.cmp(&b.0.id));
-        course_list_resource.0 = result;
-        state.loaded = true;
+        result.push((entry.clone(), course));
     }
+
+    // ソートして反映
+    result.sort_by(|a, b| a.0.id.cmp(&b.0.id));
+    course_list_resource.0 = result;
+    
+    // 全てロード完了したのでStartに遷移
+    next_state.set(crate::state::GameState::Start);
 }

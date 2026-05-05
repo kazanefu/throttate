@@ -1,7 +1,7 @@
 use super::*;
-use crate::course::{CourseID, SpawnCourseMessage};
+use crate::course::SpawnCourseMessage;
 use crate::course_selection::resources::SelectedCourseID;
-use crate::hammer::definition::{ChangeHandleDirection, HandleDirection, Pivot};
+use crate::hammer::definition::{ChangeHandleDirection, HandleDirection};
 use crate::hammer::spawn_hammer;
 use crate::state::GameState;
 use bevy_rapier2d::prelude::*;
@@ -12,10 +12,6 @@ impl Plugin for PlayingStartupPlugin {
         app.add_systems(
             OnEnter(GameState::Playing),
             ((spawn_selected_course,).chain(), spawn_player),
-        )
-        .add_systems(
-            Update,
-            add_component_for_despawn.run_if(in_state(GameState::Playing)),
         );
     }
 }
@@ -28,34 +24,22 @@ fn spawn_selected_course(
         id.0.expect("you must have selected course"),
     ));
 }
-fn add_component_for_despawn(
-    mut commands: Commands,
-    course_entity_query: Query<Entity, (With<CourseID>, Without<DespawnOnExit<GameState>>)>,
-    pivot_query: Query<Entity, (With<Pivot>, Without<DespawnOnExit<GameState>>)>,
-) {
-    for course_entity in &course_entity_query {
-        commands
-            .entity(course_entity)
-            .insert(DespawnOnExit(GameState::Playing));
-    }
-    for pivot_entity in &pivot_query {
-        commands
-            .entity(pivot_entity)
-            .insert(DespawnOnExit(GameState::Playing));
-    }
-}
 
 fn spawn_player(
     mut commands: Commands,
     mut handle_direction_message: MessageWriter<ChangeHandleDirection>,
+    config: Res<crate::config::GameplayConfig>,
 ) {
-    let player_entity = spawn_hammer(&mut commands, Vec2 { x: 0.0, y: 0.0 })
-        .insert(Player)
-        .insert(DeathCount(0))
-        .insert(TargetCheckPoint::default())
-        .insert(ActiveEvents::COLLISION_EVENTS)
-        .insert(DespawnOnExit(GameState::Playing))
-        .id();
+    let entities = spawn_hammer(&mut commands, config.initial_hammer_position);
+    commands.entity(entities.hammer).insert((
+        Player,
+        DeathCount(0),
+        TargetCheckPoint::default(),
+        ActiveEvents::COLLISION_EVENTS,
+        DespawnOnExit(GameState::Playing),
+    ));
+    commands.entity(entities.pivot).insert(DespawnOnExit(GameState::Playing));
+    
     handle_direction_message.write(ChangeHandleDirection(HandleDirection::LeftLeft));
-    commands.spawn(main_camera_bundle(player_entity));
+    commands.spawn(main_camera_bundle(entities.hammer));
 }

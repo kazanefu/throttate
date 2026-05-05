@@ -3,6 +3,7 @@ use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 use bevy_hanabi::prelude::*;
 
+mod config;
 mod course;
 mod course_selection;
 mod hammer;
@@ -14,11 +15,15 @@ mod result;
 mod action_effect;
 mod ui_utils;
 
+pub use config::*;
 pub use utils::*;
 
 fn main() {
     let mut app = App::new();
-    app.add_plugins(DefaultPlugins);
+    app.add_plugins(DefaultPlugins.set(AssetPlugin {
+        watch_for_changes_override: Some(true),
+        ..default()
+    }));
     bevy::asset::embedded_asset!(app, "fonts/NotoSansJP-Bold.ttf");
     bevy::asset::embedded_asset!(app, "images/bluepivot.png");
     bevy::asset::embedded_asset!(app, "images/magentapivot.png");
@@ -29,6 +34,7 @@ fn main() {
         .add_plugins(ui_utils::UiUtilsPlugin)
         .init_state::<state::GameState>()
         .init_state::<state::RunningState>()
+        .init_resource::<GameplayConfig>()
         .add_plugins(course::CoursePlugin)
         .add_plugins(hammer::HammerPlugin)
         .add_plugins(start::StartPlugin)
@@ -40,21 +46,21 @@ fn main() {
 }
 
 #[allow(unused)]
-fn setup(mut commands: Commands) {
+fn setup(mut commands: Commands, config: Res<GameplayConfig>) {
     // カメラ
     commands.spawn(Camera2d);
 
     // 床
     commands.spawn((
         RigidBody::Fixed,
-        Collider::cuboid(200.0, 10.0),
-        Transform::from_xyz(0.0, -100.0, 0.0),
+        Collider::cuboid(config.floor_size.x / 2.0, config.floor_size.y / 2.0),
+        Transform::from_translation(config.floor_position),
         Sprite {
-            color: Color::srgb(0.5, 0.5, 0.2),
-            custom_size: Some(Vec2::new(400.0, 20.0)),
+            color: config.floor_color,
+            custom_size: Some(config.floor_size),
             ..default()
         },
     ));
 
-    hammer::spawn_hammer(&mut commands, Vec2 { x: 0.0, y: 0.0 });
+    let _hammer = hammer::spawn_hammer(&mut commands, config.initial_hammer_position);
 }

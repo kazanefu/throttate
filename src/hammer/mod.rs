@@ -31,8 +31,13 @@ impl Plugin for HammerPlugin {
     }
 }
 
+pub struct HammerEntities {
+    pub hammer: Entity,
+    pub pivot: Entity,
+}
+
 #[allow(unused)]
-pub fn spawn_hammer<'a>(commands: &'a mut Commands, translate: Vec2) -> EntityCommands<'a> {
+pub fn spawn_hammer(commands: &mut Commands, translate: Vec2) -> HammerEntities {
     let pivot = commands
         .spawn((
             RigidBody::Fixed,
@@ -45,7 +50,8 @@ pub fn spawn_hammer<'a>(commands: &'a mut Commands, translate: Vec2) -> EntityCo
             },
         ))
         .id();
-    commands.spawn(hammer_bundle(pivot, translate))
+    let hammer = commands.spawn(hammer_bundle(pivot, translate)).id();
+    HammerEntities { hammer, pivot }
 }
 
 fn load_pivot_texture(mut commands: Commands, asset_server: Res<AssetServer>) {
