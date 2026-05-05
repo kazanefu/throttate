@@ -7,12 +7,14 @@ use crate::{
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 mod collision;
+mod input;
 pub struct PlayerPlugin;
 
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
         app.add_message::<ReachedGoalMessage>()
             .add_plugins(collision::PlayerCollisonPlugin)
+            .add_plugins(input::PlayerInputPlugin)
             .add_systems(Update, respawn.run_if(in_state(GameState::Playing)));
     }
 }
@@ -35,25 +37,23 @@ pub struct TargetCheckPoint {
     pub priority: u32,
 }
 
-// TODO: separate input handling
-fn respawn(
-    mut commands: Commands,
-    mut player_query: Query<(&mut Transform, &TargetCheckPoint, Entity, &mut Hammer)>,
-    mut hammer_action_writer: MessageWriter<HammerFreeMessage>,
-    keys: Res<ButtonInput<KeyCode>>,
-) {
-    if !keys.just_pressed(KeyCode::KeyR) {
-        return;
-    }
-    for (mut transform, checkpoint, entity, mut hammer) in &mut player_query {
-        hammer_action_writer.write(HammerFreeMessage);
-        if matches!(hammer.state, HammerState::Spinning) {
-            commands.entity(entity).remove::<ImpulseJoint>();
-            hammer.state = HammerState::Flying;
-        }
-        transform.translation = checkpoint.position;
-    }
-}
-
 #[derive(Message)]
 pub struct ReachedGoalMessage;
+
+fn respawn(
+    mut commands: Commands,
+    mut player_query: Query<(&mut Transform, &TargetCheckPoint, Entity, &mut Hammer), With<Player>>,
+    mut hammer_action_writer: MessageWriter<HammerFreeMessage>,
+    mut respawn: MessageReader<input::RespawnMessage>,
+) {
+    for _ in respawn.read() {
+        for (mut transform, checkpoint, entity, mut hammer) in &mut player_query {
+            hammer_action_writer.write(HammerFreeMessage);
+            if matches!(hammer.state, HammerState::Spinning) {
+                commands.entity(entity).remove::<ImpulseJoint>();
+                hammer.state = HammerState::Flying;
+            }
+            transform.translation = checkpoint.position;
+        }
+    }
+}

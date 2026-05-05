@@ -4,6 +4,7 @@ use bevy_hanabi::prelude::*;
 use bevy_rapier2d::prelude::*;
 
 mod action_effect;
+mod config;
 mod course;
 mod course_selection;
 mod hammer;
@@ -24,6 +25,7 @@ fn main() {
     app.add_plugins(RapierPhysicsPlugin::<NoUserData>::default())
         // .add_plugins(RapierDebugRenderPlugin::default())
         .add_plugins(HanabiPlugin)
+        .init_resource::<config::GameConfig>()
         .add_plugins(utils::UtilityPlugin)
         .init_state::<state::GameState>()
         .init_state::<state::RunningState>()
@@ -35,24 +37,4 @@ fn main() {
         .add_plugins(result::ResultPlugin)
         .add_plugins(action_effect::ActionEffectPlugin)
         .run();
-}
-
-#[allow(unused)]
-fn setup(mut commands: Commands) {
-    // カメラ
-    commands.spawn(Camera2d);
-
-    // 床
-    commands.spawn((
-        RigidBody::Fixed,
-        Collider::cuboid(200.0, 10.0),
-        Transform::from_xyz(0.0, -100.0, 0.0),
-        Sprite {
-            color: Color::srgb(0.5, 0.5, 0.2),
-            custom_size: Some(Vec2::new(400.0, 20.0)),
-            ..default()
-        },
-    ));
-
-    hammer::spawn_hammer(&mut commands, Vec2 { x: 0.0, y: 0.0 });
 }
