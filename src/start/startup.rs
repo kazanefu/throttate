@@ -1,11 +1,7 @@
 use crate::state::GameState;
-use bevy::prelude::*;
-
-fn start_camera_bundle() -> impl Bundle {
-    (Camera2d, DespawnOnExit(GameState::Start))
-}
+use crate::utils::state_camera_bundle;
+use bevy::prelude::Commands;
 
 pub fn spawn_start_camera(mut commands: Commands) {
-    commands.spawn(start_camera_bundle());
-
+    commands.spawn(state_camera_bundle(GameState::Start));
 }

@@ -1,3 +1,4 @@
+use crate::state::GameState;
 use crate::state::RunningState;
 use bevy::prelude::*;
 pub const FONT_PATH: &str = "embedded://throtate/fonts/NotoSansJP-Bold.ttf";
@@ -8,7 +9,8 @@ impl Plugin for UtilityPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             Update,
-            (tick_interval, update_stopwatch, handle_despawn_timer).run_if(in_state(RunningState::Running)),
+            (tick_interval, update_stopwatch, handle_despawn_timer)
+                .run_if(in_state(RunningState::Running)),
         );
     }
 }
@@ -90,4 +92,6 @@ pub fn handle_despawn_timer(
         }
     }
 }
-
+pub fn state_camera_bundle(state: GameState) -> impl Bundle {
+    (Camera2d, DespawnOnExit(state))
+}
