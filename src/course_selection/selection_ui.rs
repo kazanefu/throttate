@@ -14,11 +14,6 @@ impl Plugin for SelectionUiPlugin {
                     update_course_list_buttons,
                     update_confirm_button_text,
                     update_confirm_button,
-                    generic_button_system::<ConfirmButton>(
-                        Color::srgb(0.1, 0.9, 0.9),
-                        Color::srgb(0.0, 0.9, 0.9),
-                        Color::srgb(0.2, 0.2, 0.5),
-                    ),
                 )
                     .run_if(in_state(GameState::CourseSelection)),
             );

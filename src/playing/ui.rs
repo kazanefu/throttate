@@ -57,7 +57,9 @@ use crate::ui_utils::*;
 fn spawn_playing_ui(mut commands: Commands, asset_server: Res<AssetServer>) {
     let canvas = commands.spawn(root_canvas_bundle(GameState::Playing)).id();
     commands.entity(canvas).insert(Node {
-        align_items: AlignItems::FlexStart,
+        width: Val::Percent(100.0),
+        height: Val::Percent(100.0),
+        align_items: AlignItems::FlexEnd,
         justify_content: JustifyContent::FlexStart,
         flex_direction: FlexDirection::Column,
         ..default()

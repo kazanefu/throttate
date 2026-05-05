@@ -48,17 +48,20 @@ pub fn update_confirm_button_text(
     }
 }
 
-use crate::ui_utils::InteractionQuery;
 
 pub fn update_confirm_button(
-    mut button_query: InteractionQuery<ConfirmButton>,
+    mut button_query: Query<(&Interaction, &mut BackgroundColor), With<ConfirmButton>>,
     selected_id: Res<SelectedCourseID>,
     mut game_state: ResMut<NextState<GameState>>,
 ) {
-    if selected_id.0.is_none() {
-        return;
-    }
+    let is_selected = selected_id.0.is_some();
+
     for (interaction, mut background_color) in &mut button_query {
+        if !is_selected {
+            background_color.0 = Color::srgb(0.5, 0.5, 0.5); // Gray
+            continue;
+        }
+
         match interaction {
             Interaction::Pressed => {
                 background_color.0 = Color::srgb(0.2, 0.2, 0.5);
