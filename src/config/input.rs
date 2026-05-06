@@ -1,24 +1,6 @@
 use bevy::prelude::*;
 
 #[derive(Clone, Copy)]
-pub struct PlayerSetting {}
-
-impl Default for PlayerSetting {
-    fn default() -> Self {
-        Self {}
-    }
-}
-
-#[derive(Clone, Copy)]
-pub struct CourseSetting {}
-
-impl Default for CourseSetting {
-    fn default() -> Self {
-        Self {}
-    }
-}
-
-#[derive(Clone, Copy)]
 pub struct InputSetting {
     pub respawn: KeyCode,
     pub throw: KeyCode,
@@ -43,11 +25,4 @@ impl Default for InputSetting {
             exit: KeyCode::Escape,
         }
     }
-}
-
-#[derive(Resource, Default, Clone)]
-pub struct GameConfig {
-    pub player_setting: PlayerSetting,
-    pub course_setting: CourseSetting,
-    pub input: InputSetting,
 }

@@ -1,3 +1,5 @@
+use crate::config::GameConfig;
+
 use super::definition::*;
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
@@ -66,20 +68,21 @@ pub fn handle_hammer_input(
     keys: Res<ButtonInput<KeyCode>>,
     mut hammer_action_writer: MessageWriter<HammerActionMessage>,
     mut handle_direction_writer: MessageWriter<ChangeHandleDirection>,
+    config: Res<GameConfig>,
 ) {
-    if keys.just_pressed(HAMMER_ACTION_KEY_CODE) {
+    if keys.just_pressed(config.input.throw) {
         hammer_action_writer.write(HammerActionMessage);
     }
-    if keys.just_pressed(CHANGE_DIRECTION_KEY_CODE_LL) {
+    if keys.just_pressed(config.input.ll_spin) {
         handle_direction_writer.write(ChangeHandleDirection(HandleDirection::LeftLeft));
     }
-    if keys.just_pressed(CHANGE_DIRECTION_KEY_CODE_RR) {
+    if keys.just_pressed(config.input.rr_spin) {
         handle_direction_writer.write(ChangeHandleDirection(HandleDirection::RightRight));
     }
-    if keys.just_pressed(CHANGE_DIRECTION_KEY_CODE_LR) {
+    if keys.just_pressed(config.input.lr_spin) {
         handle_direction_writer.write(ChangeHandleDirection(HandleDirection::LeftRight));
     }
-    if keys.just_pressed(CHANGE_DIRECTION_KEY_CODE_RL) {
+    if keys.just_pressed(config.input.rl_spin) {
         handle_direction_writer.write(ChangeHandleDirection(HandleDirection::RightLeft));
     }
 }
