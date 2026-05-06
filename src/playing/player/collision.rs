@@ -63,8 +63,8 @@ fn handle_death(
             }
 
             death_count.count_up();
-            transform.translation = checkpoint.position;
             death_writer.write(FireDeathEffect(transform.translation));
+            transform.translation = checkpoint.position;
         }
     }
 }
