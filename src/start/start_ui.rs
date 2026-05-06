@@ -1,8 +1,9 @@
+use crate::config::GameConfig;
 use crate::state::GameState;
 use crate::utils::FONT_PATH;
 use bevy::prelude::*;
 const EXPLANATION_TEXT: &str = r#"
-概要: 
+概要:
     ハンマー投のようにぐるぐる回してから離すことで移動してゴールを目指すゲームです。
 登場するもの:
     プレイヤー:
@@ -110,6 +111,7 @@ fn update_start_button(
     mut game_state: ResMut<NextState<GameState>>,
     mut query: Query<(&Interaction, &mut BackgroundColor), StartButtonInputs>,
     key: Res<ButtonInput<KeyCode>>,
+    config: Res<GameConfig>,
 ) {
     for (interaction, mut background_color) in &mut query {
         match interaction {
@@ -125,7 +127,7 @@ fn update_start_button(
             }
         }
     }
-    if key.just_pressed(KeyCode::Enter) {
+    if key.just_pressed(config.input.next) {
         game_state.set(GameState::CourseSelection);
     }
 }
@@ -146,7 +148,7 @@ fn start_sub_canvas_bundle() -> impl Bundle {
             top: Val::Px(0.0),
             row_gap: Val::Px(10.0),
             ..default()
-        }
+        },
     )
 }
 
