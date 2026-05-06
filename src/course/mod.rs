@@ -1,8 +1,7 @@
 use bevy::prelude::*;
 use serde::Deserialize;
-mod load_course;
-use load_course::*;
 pub mod course_items;
+mod load_course;
 pub mod spawn;
 pub use spawn::*;
 
@@ -13,14 +12,14 @@ pub struct CoursePlugin;
 impl Plugin for CoursePlugin {
     fn build(&self, app: &mut App) {
         app.insert_resource(CourseListResource::default())
-            .init_asset::<asset_load::RonText>()
-            .register_asset_loader(asset_load::RonTextLoader)
+            .init_asset::<load_course::RonText>()
+            .register_asset_loader(load_course::RonTextLoader)
             .add_plugins(course_items::turret::TurretPlugin)
             .add_plugins(course_items::breakable_box::BreakableBoxPlugin)
             .add_message::<SpawnCourseMessage>()
-            .init_resource::<asset_load::CourseLoadState>()
-            .add_systems(OnEnter(GameState::Start), asset_load::start_load_courses)//init_courses_list_resource)
-            .add_systems(Update, (spawn_course_from_id, asset_load::resolve_courses));
+            .init_resource::<load_course::CourseLoadState>()
+            .add_systems(OnEnter(GameState::Start), load_course::start_load_courses) //init_courses_list_resource)
+            .add_systems(Update, (spawn_course_from_id, load_course::resolve_courses));
     }
 }
 
