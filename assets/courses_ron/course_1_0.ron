@@ -105,5 +105,7 @@
 
         (x: 100.0, y: -3700.0, kind: Text(sentence: "5/9")),
         (x: 0.0, y: -3700.0, kind: Checkpoint(priority: 5)),
+
+        
     ]
 )
