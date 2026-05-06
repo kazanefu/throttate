@@ -2,6 +2,21 @@ use super::*;
 use bevy::asset::Asset;
 use bevy::reflect::TypePath;
 
+pub struct CourseLoadPlugin;
+
+impl Plugin for CourseLoadPlugin {
+    fn build(&self, app: &mut App) {
+        app.init_asset::<RonText>()
+            .register_asset_loader(RonTextLoader)
+            .init_resource::<CourseLoadState>()
+            .add_systems(OnEnter(GameState::Loading), start_load_courses)
+            .add_systems(
+                Update,
+                (load_index, check_and_finalize).run_if(in_state(GameState::Loading)),
+            );
+    }
+}
+
 #[derive(Asset, TypePath, Clone)]
 pub struct RonText(pub String);
 use anyhow::Error;
@@ -32,25 +47,31 @@ impl AssetLoader for RonTextLoader {
         &["ron"]
     }
 }
-
 #[derive(Resource, Default)]
 pub struct CourseLoadState {
     pub index: Option<Handle<RonText>>,
     pub courses: Vec<(CourseEntry, Handle<RonText>)>,
-    pub loaded: bool,
 }
-pub fn start_load_courses(mut state: ResMut<CourseLoadState>, asset_server: Res<AssetServer>) {
+
+pub fn start_load_courses(
+    mut state: ResMut<CourseLoadState>,
+    asset_server: Res<AssetServer>,
+    mut texts: ResMut<Assets<RonText>>,
+) {
+    if let Some(index_handle) = state.index.take() {
+        texts.remove(index_handle.id());
+    }
+    asset_server.reload("courses_ron/index.ron");
     state.index = Some(asset_server.load("courses_ron/index.ron"));
     state.courses.clear();
-    state.loaded = false;
 }
-pub fn resolve_courses(
+
+pub fn load_index(
     mut state: ResMut<CourseLoadState>,
-    mut course_list_resource: ResMut<CourseListResource>,
-    texts: Res<Assets<RonText>>,
     asset_server: Res<AssetServer>,
+    mut texts: ResMut<Assets<RonText>>,
 ) {
-    if state.loaded {
+    if !state.courses.is_empty() {
         return;
     }
     let Some(index_handle) = &state.index else {
@@ -62,18 +83,35 @@ pub fn resolve_courses(
         return;
     };
 
-    let list: CourseList = ron::de::from_str(&index_text.0).expect("parse index.ron failed");
+    match ron::de::from_str::<CourseList>(&index_text.0) {
+        Ok(list) => {
+            // courseのロード開始
+            state.courses = list
+                .0
+                .iter()
+                .map(|entry| {
+                    let path = format!("courses_ron/{}", entry.path);
+                    asset_server.reload(&path);
+                    let handle = asset_server.load(&path);
+                    texts.remove(handle.id());
+                    (entry.clone(), handle)
+                })
+                .collect::<Vec<(CourseEntry, Handle<RonText>)>>();
+        }
+        Err(e) => {
+            error!("parse index.ron failed: {}", e);
+        }
+    }
+}
 
-    // courseのロード開始（1回だけ）
+pub fn check_and_finalize(
+    state: Res<CourseLoadState>,
+    mut course_list_resource: ResMut<CourseListResource>,
+    texts: Res<Assets<RonText>>,
+    mut next_state: ResMut<NextState<crate::state::GameState>>,
+) {
     if state.courses.is_empty() {
-        state.courses = list
-            .0
-            .iter()
-            .map(|entry| {
-                let handle = asset_server.load(format!("courses_ron/{}", entry.path));
-                (entry.clone(), handle)
-            })
-            .collect::<Vec<(CourseEntry, Handle<RonText>)>>();
+        return;
     }
 
     // 全部ロード完了してるかチェック
@@ -84,13 +122,21 @@ pub fn resolve_courses(
             return;
         };
 
-        let course: Course = ron::de::from_str(&text.0).expect("parse course failed");
-
-        result.push((entry.clone(), course));
+        match ron::de::from_str::<Course>(&text.0) {
+            Ok(course) => {
+                result.push((entry.clone(), course));
+            }
+            Err(e) => {
+                error!("parse course {} failed: {}", entry.name, e);
+                return;
+            }
+        }
     }
 
     // ソートして反映
     result.sort_by(|a, b| a.0.id.cmp(&b.0.id));
     course_list_resource.0 = result;
-    state.loaded = true;
+
+    // 全てロード完了したのでStartに遷移
+    next_state.set(crate::state::GameState::Start);
 }

@@ -7,6 +7,6 @@ pub fn exit(
     config: Res<GameConfig>,
 ) {
     if keys.just_pressed(config.input.exit) {
-        game_state.set(GameState::Start);
+        game_state.set(GameState::Loading);
     }
 }
