@@ -1,5 +1,5 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
-use bevy::prelude::*;
+use bevy::{prelude::*, window::WindowResolution};
 use bevy_hanabi::prelude::*;
 use bevy_rapier2d::prelude::*;
 
@@ -10,6 +10,7 @@ mod course_selection;
 mod hammer;
 mod playing;
 mod result;
+mod settings;
 mod start;
 mod state;
 mod utils;
@@ -17,8 +18,26 @@ mod utils;
 pub use utils::*;
 
 fn main() {
+    let settings = settings::get_settings();
     let mut app = App::new();
-    app.add_plugins(DefaultPlugins);
+    app.add_plugins(DefaultPlugins.set(WindowPlugin {
+        primary_window: Some(Window {
+            title: settings.window.title.clone(),
+            resolution: WindowResolution::new(settings.window.width, settings.window.height),
+            mode: if settings.window.fullscreen {
+                bevy::window::WindowMode::BorderlessFullscreen(MonitorSelection::Primary)
+            } else {
+                bevy::window::WindowMode::Windowed
+            },
+            present_mode: if settings.window.vsync {
+                bevy::window::PresentMode::AutoVsync
+            } else {
+                bevy::window::PresentMode::AutoNoVsync
+            },
+            ..default()
+        }),
+        ..default()
+    }));
     bevy::asset::embedded_asset!(app, "fonts/NotoSansJP-Bold.ttf");
     bevy::asset::embedded_asset!(app, "images/bluepivot.png");
     bevy::asset::embedded_asset!(app, "images/magentapivot.png");
