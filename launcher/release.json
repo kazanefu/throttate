@@ -1,0 +1,15 @@
+{
+  "latest": {
+    "version": "0.1.1",
+    "assets": [
+      {
+        "name": "Throtate",
+        "url": "https://github.com/kazanefu/zip_sample_game/releases/download/v0.1.1/sample.zip",
+        "type": "zip",
+        "sha256": "sha256:dfe23ae8af9f09ac300de311902ddf985b08b5bc5e7c2abbf1e9640c6817cd01",
+        "entry_point": "throtate.exe"
+      }
+    ],
+    "channel": "stable"
+  }
+}
