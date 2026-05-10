@@ -2,7 +2,7 @@
 
 **回って飛んでゴールを目指す2Dアクションゲームです。**
 
-![sample image](https://raw.githubusercontent.com/kazanefu/throtate/main/readme_img.png)
+<img src="https://raw.githubusercontent.com/kazanefu/throtate/main/readme_img.png" width="50%">
 
 ## 操作方法
 
