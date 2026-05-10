@@ -2,6 +2,8 @@
 
 **回って飛んでゴールを目指す2Dアクションゲームです。**
 
+![sample image](https://github.com/kazanefu/throtate/blob/main/readme_img.png)
+
 ## 操作方法
 
 - `Space`: **回る** と **飛ぶ**　を切り替える
