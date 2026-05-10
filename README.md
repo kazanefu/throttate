@@ -2,8 +2,6 @@
 
 **回って飛んでゴールを目指す2Dアクションゲームです。**
 
-<img src="https://raw.githubusercontent.com/kazanefu/throtate/main/readme_img.png" width="300">
-
 ## 操作方法
 
 - `Space`: **回る** と **飛ぶ**　を切り替える
@@ -27,3 +25,7 @@
 - **デスプロック**: 触れたときに **死亡数** を+1してリスポーンポイントに戻されるオブジェクト。 見た目: **赤色の正方形**
 - **タレット**: 小さな **デスプロック** を定期的に発射するオブジェクト。 見た目: **オレンジの正方形**
 - **スマッシュブロック**: 一定速度以上で衝突することで破壊できるオブジェクト。 見た目: **黄色の正方形**
+
+## イメージ画像
+
+![sample image](https://raw.githubusercontent.com/kazanefu/throtate/main/readme_img.png)
