@@ -1,4 +1,14 @@
-use bevy::{asset::{Assets, Handle}, ecs::{message::{Message, MessageReader}, resource::Resource, system::Commands}, math::{Vec3, Vec4}, prelude::{Res,ResMut}, transform::components::Transform};
+use bevy::{
+    asset::{Assets, Handle},
+    ecs::{
+        message::{Message, MessageReader},
+        resource::Resource,
+        system::Commands,
+    },
+    math::{Vec3, Vec4},
+    prelude::{Res, ResMut},
+    transform::components::Transform,
+};
 
 use bevy_hanabi::{
     Attribute, ColorBlendMask, ColorBlendMode, ColorOverLifetimeModifier, EffectAsset, Module,
@@ -6,7 +16,7 @@ use bevy_hanabi::{
     ShapeDimension, SizeOverLifetimeModifier, SpawnerSettings,
 };
 
-use crate::DespawnWithTime;
+use crate::LifeTime;
 
 #[derive(Message)]
 pub struct FireBreakEffect(pub Vec3);
@@ -20,7 +30,7 @@ pub fn handle_break_effect(
         commands.spawn((
             ParticleEffect::new(effect.0.clone().expect("break effect never setuped")),
             Transform::from_translation(position.0),
-            DespawnWithTime(2.0),
+            LifeTime::new(2.0),
         ));
     }
 }
@@ -61,7 +71,7 @@ pub fn break_effect(effects: &mut Assets<EffectAsset>) -> Handle<EffectAsset> {
     let init_lifetime = SetAttributeModifier::new(Attribute::LIFETIME, lifetime);
     let effect = EffectAsset::new(
         // Maximum number of particles alive at a time
-        32768,
+        1000,
         SpawnerSettings::once(100.0.into()),
         // Move the expression module into the asset
         module,

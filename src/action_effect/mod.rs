@@ -1,21 +1,20 @@
 use bevy::prelude::*;
 use bevy_hanabi::prelude::*;
 
-use crate::DespawnWithTime;
+use crate::LifeTime;
 
 pub struct ActionEffectPlugin;
 
 impl Plugin for ActionEffectPlugin {
     fn build(&self, app: &mut App) {
         app.add_message::<FireDeathEffect>()
-        .add_message::<FireCheckPointEffect>()
-        .insert_resource(DeathEffect(None))
-        .insert_resource(CheckPointEffect(None))
-        .add_systems(Startup,(setup_death_effect,setup_checkpoint_effect))
-        .add_systems(Update,(handle_death_effect,handle_checkpoint_effect));
+            .add_message::<FireCheckPointEffect>()
+            .insert_resource(DeathEffect(None))
+            .insert_resource(CheckPointEffect(None))
+            .add_systems(Startup, (setup_death_effect, setup_checkpoint_effect))
+            .add_systems(Update, (handle_death_effect, handle_checkpoint_effect));
     }
 }
-
 
 // death effect
 
@@ -34,7 +33,7 @@ pub fn handle_death_effect(
         commands.spawn((
             ParticleEffect::new(effect.0.clone().expect("death effect never setuped")),
             Transform::from_translation(position.0),
-            DespawnWithTime(1.0),
+            LifeTime::new(1.0),
         ));
     }
 }
@@ -70,7 +69,7 @@ fn death_effect(effects: &mut Assets<EffectAsset>) -> Handle<EffectAsset> {
     let init_lifetime = SetAttributeModifier::new(Attribute::LIFETIME, lifetime);
     let effect = EffectAsset::new(
         // Maximum number of particles alive at a time
-        32768,
+        1000,
         SpawnerSettings::once(10.0.into()),
         // Move the expression module into the asset
         module,
@@ -96,8 +95,6 @@ fn death_effect(effects: &mut Assets<EffectAsset>) -> Handle<EffectAsset> {
     effects.add(effect)
 }
 
-
-
 // Checkpoint effect
 
 #[derive(Message)]
@@ -116,7 +113,7 @@ pub fn handle_checkpoint_effect(
         commands.spawn((
             ParticleEffect::new(effect.0.clone().expect("checkpoint effect never setuped")),
             Transform::from_translation(position.0),
-            DespawnWithTime(5.0),
+            LifeTime::new(5.0),
         ));
         *count += 1;
         println!("reach checkpoint{}", *count);
@@ -154,8 +151,10 @@ pub fn checkpoint_effect(effects: &mut Assets<EffectAsset>) -> Handle<EffectAsse
     let lifetime = module.lit(3.);
     let init_lifetime = SetAttributeModifier::new(Attribute::LIFETIME, lifetime);
     let effect = EffectAsset::new(
-        32768,
-        SpawnerSettings::rate(10.0.into()).with_spawn_duration(1.0.into()).with_cycle_count(1),
+        1000,
+        SpawnerSettings::rate(10.0.into())
+            .with_spawn_duration(1.0.into())
+            .with_cycle_count(1),
         module,
     )
     .with_name("checkpoint_effect")
@@ -175,6 +174,6 @@ pub fn checkpoint_effect(effects: &mut Assets<EffectAsset>) -> Handle<EffectAsse
         ]),
         screen_space_size: false,
     });
-    
+
     effects.add(effect)
 }
