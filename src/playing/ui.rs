@@ -88,6 +88,7 @@ fn update_time_ui(
         return;
     };
     for mut time_ui_text in &mut time_ui_query {
+        time_ui_text.0.clear();
         write!(&mut time_ui_text.0, "タイム: {:.2}", time)
             .expect("writing to String should never fail");
         time_score.time = time;
@@ -105,7 +106,7 @@ fn update_death_count_ui(
         return;
     };
     for mut text in &mut death_count_ui_query {
-        **text = format!("死亡数 {}", death_count);
+        text.0.clear();
         write!(&mut text.0, "死亡数: {}", death_count)
             .expect("writing to String should never fail");
         death_score.death = death_count;
