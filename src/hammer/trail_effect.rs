@@ -32,7 +32,7 @@ pub fn trail_effect_bundle(effects: &mut Assets<EffectAsset>) -> impl Bundle {
     let init_lifetime = SetAttributeModifier::new(Attribute::LIFETIME, lifetime);
     let effect = EffectAsset::new(
         // Maximum number of particles alive at a time
-        32768,
+        1000,
         SpawnerSettings::rate(100.0.into()),
         // Move the expression module into the asset
         module,
@@ -69,9 +69,10 @@ pub fn attach_trail_effect(
     mut effects: ResMut<Assets<EffectAsset>>,
 ) {
     for hammer_entity in &hammer_query {
-        let trail_effect = commands
-            .spawn(trail_effect_bundle(&mut effects))
-            .id();
-        commands.entity(hammer_entity).add_child(trail_effect).insert(HasTrailEffect);
+        let trail_effect = commands.spawn(trail_effect_bundle(&mut effects)).id();
+        commands
+            .entity(hammer_entity)
+            .add_child(trail_effect)
+            .insert(HasTrailEffect);
     }
 }

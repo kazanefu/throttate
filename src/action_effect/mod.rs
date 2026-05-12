@@ -70,7 +70,7 @@ fn death_effect(effects: &mut Assets<EffectAsset>) -> Handle<EffectAsset> {
     let init_lifetime = SetAttributeModifier::new(Attribute::LIFETIME, lifetime);
     let effect = EffectAsset::new(
         // Maximum number of particles alive at a time
-        32768,
+        1000,
         SpawnerSettings::once(10.0.into()),
         // Move the expression module into the asset
         module,
@@ -154,7 +154,7 @@ pub fn checkpoint_effect(effects: &mut Assets<EffectAsset>) -> Handle<EffectAsse
     let lifetime = module.lit(3.);
     let init_lifetime = SetAttributeModifier::new(Attribute::LIFETIME, lifetime);
     let effect = EffectAsset::new(
-        32768,
+        1000,
         SpawnerSettings::rate(10.0.into()).with_spawn_duration(1.0.into()).with_cycle_count(1),
         module,
     )

@@ -1,4 +1,14 @@
-use bevy::{asset::{Assets, Handle}, ecs::{message::{Message, MessageReader}, resource::Resource, system::Commands}, math::{Vec3, Vec4}, prelude::{Res,ResMut}, transform::components::Transform};
+use bevy::{
+    asset::{Assets, Handle},
+    ecs::{
+        message::{Message, MessageReader},
+        resource::Resource,
+        system::Commands,
+    },
+    math::{Vec3, Vec4},
+    prelude::{Res, ResMut},
+    transform::components::Transform,
+};
 
 use bevy_hanabi::{
     Attribute, ColorBlendMask, ColorBlendMode, ColorOverLifetimeModifier, EffectAsset, Module,
@@ -61,7 +71,7 @@ pub fn break_effect(effects: &mut Assets<EffectAsset>) -> Handle<EffectAsset> {
     let init_lifetime = SetAttributeModifier::new(Attribute::LIFETIME, lifetime);
     let effect = EffectAsset::new(
         // Maximum number of particles alive at a time
-        32768,
+        1000,
         SpawnerSettings::once(100.0.into()),
         // Move the expression module into the asset
         module,
