@@ -8,7 +8,13 @@ impl Plugin for UtilityPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             Update,
-            (tick_interval, update_stopwatch, update_despawn_timer, despawn_timeout_entity).run_if(in_state(RunningState::Running)),
+            (
+                tick_interval,
+                update_stopwatch,
+                start_life_time,
+                despawn_life_end,
+            )
+                .run_if(in_state(RunningState::Running)),
         );
     }
 }
@@ -76,17 +82,34 @@ pub fn update_stopwatch(time: Res<Time>, mut stopwatch_query: Query<&mut StopWat
 }
 
 #[derive(Component)]
-pub struct DespawnWithTime(pub f32);
-
-pub fn update_despawn_timer(time: Res<Time>, mut despawn_timer_query: Query<&mut DespawnWithTime>) {
-    for mut despawn_timer in &mut despawn_timer_query {
-        despawn_timer.0 -= time.delta_secs();
+pub struct LifeTime {
+    life_time: f32,
+    start_time: Option<f32>,
+}
+impl LifeTime {
+    pub fn new(life_time: f32) -> Self {
+        Self {
+            life_time,
+            start_time: None,
+        }
     }
 }
 
-pub fn despawn_timeout_entity(mut commands: Commands, query: Query<(Entity, &DespawnWithTime)>) {
-    for (entity, timer) in &query {
-        if timer.0 <= 0.0 {
+fn start_life_time(time: Res<Time>, mut life_time_que: Query<&mut LifeTime, Added<LifeTime>>) {
+    for mut life_time in &mut life_time_que {
+        life_time.start_time = Some(time.elapsed_secs());
+    }
+}
+fn despawn_life_end(
+    time: Res<Time>,
+    life_time_que: Query<(Entity, &LifeTime)>,
+    mut commands: Commands,
+) {
+    let now = time.elapsed_secs();
+    for (entity, life_time) in &life_time_que {
+        if let Some(start) = life_time.start_time
+            && now - start >= life_time.life_time
+        {
             commands.entity(entity).despawn();
         }
     }

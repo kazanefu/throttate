@@ -1,4 +1,4 @@
-use crate::{DespawnWithTime, course::course_items::death_box::Death};
+use crate::{LifeTime, course::course_items::death_box::Death};
 
 use super::*;
 
@@ -51,7 +51,7 @@ fn bullet_bundle(translation: Vec3, rotation: Quat) -> impl Bundle {
             scale: Vec3::ONE,
         },
         GlobalTransform::default(),
-        DespawnWithTime(BULLET_LIFE_TIME),
+        LifeTime::new(BULLET_LIFE_TIME),
         RigidBody::Dynamic,
         Collider::cuboid(ONE_BOX_SIZE / 4.0, ONE_BOX_SIZE / 4.0),
         Sprite {

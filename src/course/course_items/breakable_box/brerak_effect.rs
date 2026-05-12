@@ -16,7 +16,7 @@ use bevy_hanabi::{
     ShapeDimension, SizeOverLifetimeModifier, SpawnerSettings,
 };
 
-use crate::DespawnWithTime;
+use crate::LifeTime;
 
 #[derive(Message)]
 pub struct FireBreakEffect(pub Vec3);
@@ -30,7 +30,7 @@ pub fn handle_break_effect(
         commands.spawn((
             ParticleEffect::new(effect.0.clone().expect("break effect never setuped")),
             Transform::from_translation(position.0),
-            DespawnWithTime(2.0),
+            LifeTime::new(2.0),
         ));
     }
 }
