@@ -1,0 +1,28 @@
+(
+    entities: [
+        (x: 0.0, y: 200.0, kind: Text(sentence: "コース: 2-0")),
+        (x: 2500.0, y: -325.0, kind: Ground(width: 5600.0, height: 100.0)), // 地面
+        (x: 2500.0, y: 325.0, kind: Ground(width: 5600.0, height: 100.0)), // 天井
+        (x: -275.0, y: 0.0, kind: Ground(width: 50.0, height: 550.0)), // 左端
+        (x: 0.0, y: 0.0, kind: Checkpoint(priority: 1)), // スタート
+
+        // Breakableセクション
+        (x: 300.0, y: 0.0, kind: Breakable(required_speed: 5.0)),
+        (x: 300.0, y: 100.0, kind: Breakable(required_speed: 5.0)),
+        (x: 300.0, y: -100.0, kind: Breakable(required_speed: 5.0)),
+        (x: 300.0, y: 200.0, kind: Breakable(required_speed: 5.0)),
+        (x: 300.0, y: -200.0, kind: Breakable(required_speed: 5.0)),
+
+        (x: 350.0, y: 50.0, kind: Breakable(required_speed: 5.0)),
+        (x: 350.0, y: -50.0, kind: Breakable(required_speed: 5.0)),
+        (x: 350.0, y: 150.0, kind: Breakable(required_speed: 5.0)),
+        (x: 350.0, y: -150.0, kind: Breakable(required_speed: 5.0)),
+        (x: 350.0, y: 250.0, kind: Breakable(required_speed: 5.0)),
+        (x: 350.0, y: -250.0, kind: Breakable(required_speed: 5.0)),
+        (x: 400.0, y: 0.0, kind: Breakable(required_speed: 5.0)),
+        (x: 400.0, y: 100.0, kind: Breakable(required_speed: 5.0)),
+        (x: 400.0, y: -100.0, kind: Breakable(required_speed: 5.0)),
+        (x: 400.0, y: 200.0, kind: Breakable(required_speed: 5.0)),
+        (x: 400.0, y: -200.0, kind: Breakable(required_speed: 5.0)),
+    ],
+)
