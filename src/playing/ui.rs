@@ -37,12 +37,12 @@ fn playing_camvas_bundle() -> impl Bundle {
     )
 }
 
-fn time_ui_bundle(asset_server: &AssetServer) -> impl Bundle {
+fn time_ui_bundle(font: &Handle<Font>) -> impl Bundle {
     (
         Text::new(""),
         TimeUi,
         TextFont {
-            font: asset_server.load(FONT_PATH),
+            font: font.clone(),
             font_size: 40.0,
             ..default()
         },
@@ -51,12 +51,12 @@ fn time_ui_bundle(asset_server: &AssetServer) -> impl Bundle {
     )
 }
 
-fn death_count_ui_bundle(asset_server: &AssetServer) -> impl Bundle {
+fn death_count_ui_bundle(font: &Handle<Font>) -> impl Bundle {
     (
         Text::new(""),
         DeathCountUi,
         TextFont {
-            font: asset_server.load(FONT_PATH),
+            font: font.clone(),
             font_size: 40.0,
             ..default()
         },
@@ -65,12 +65,12 @@ fn death_count_ui_bundle(asset_server: &AssetServer) -> impl Bundle {
     )
 }
 
-fn spawn_playing_ui(mut commands: Commands, asset_server: Res<AssetServer>) {
+fn spawn_playing_ui(mut commands: Commands, font: Res<JpFont>) {
     let canvas = commands.spawn(playing_camvas_bundle()).id();
-    let time_ui = commands.spawn(time_ui_bundle(&asset_server)).id();
+    let time_ui = commands.spawn(time_ui_bundle(font.get())).id();
     let stopwatct = commands.spawn(StopWatch::new(true)).id();
     commands.entity(time_ui).add_child(stopwatct);
-    let death_count_ui = commands.spawn(death_count_ui_bundle(&asset_server)).id();
+    let death_count_ui = commands.spawn(death_count_ui_bundle(font.get())).id();
     commands
         .entity(canvas)
         .add_children(&[time_ui, death_count_ui]);

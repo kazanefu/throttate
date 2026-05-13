@@ -6,7 +6,7 @@ pub struct UtilityPlugin;
 
 impl Plugin for UtilityPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(
+        app.add_systems(Startup, load_jp_font).add_systems(
             Update,
             (
                 tick_interval,
@@ -113,4 +113,19 @@ fn despawn_life_end(
             commands.entity(entity).despawn();
         }
     }
+}
+
+#[derive(Resource)]
+pub struct JpFont {
+    font: Handle<Font>,
+}
+impl JpFont {
+    pub fn get(&self) -> &Handle<Font> {
+        &self.font
+    }
+}
+
+fn load_jp_font(mut commands: Commands, asset_server: Res<AssetServer>) {
+    let font = asset_server.load(FONT_PATH);
+    commands.insert_resource(JpFont { font });
 }
