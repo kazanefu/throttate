@@ -19,10 +19,26 @@
         (x: 350.0, y: -150.0, kind: Breakable(required_speed: 5.0)),
         (x: 350.0, y: 250.0, kind: Breakable(required_speed: 5.0)),
         (x: 350.0, y: -250.0, kind: Breakable(required_speed: 5.0)),
+
         (x: 400.0, y: 0.0, kind: Breakable(required_speed: 5.0)),
         (x: 400.0, y: 100.0, kind: Breakable(required_speed: 5.0)),
         (x: 400.0, y: -100.0, kind: Breakable(required_speed: 5.0)),
         (x: 400.0, y: 200.0, kind: Breakable(required_speed: 5.0)),
         (x: 400.0, y: -200.0, kind: Breakable(required_speed: 5.0)),
+
+        (x: 450.0, y: 50.0, kind: Breakable(required_speed: 5.0)),
+        (x: 450.0, y: -50.0, kind: Breakable(required_speed: 5.0)),
+        (x: 450.0, y: 150.0, kind: Breakable(required_speed: 5.0)),
+        (x: 450.0, y: -150.0, kind: Breakable(required_speed: 5.0)),
+        (x: 450.0, y: 250.0, kind: Breakable(required_speed: 5.0)),
+        (x: 450.0, y: -250.0, kind: Breakable(required_speed: 5.0)),
+
+        (x: 500.0, y: 0.0, kind: Breakable(required_speed: 5.0)),
+        (x: 500.0, y: 100.0, kind: Breakable(required_speed: 5.0)),
+        (x: 500.0, y: -100.0, kind: Breakable(required_speed: 5.0)),
+        (x: 500.0, y: 200.0, kind: Breakable(required_speed: 5.0)),
+        (x: 500.0, y: -200.0, kind: Breakable(required_speed: 5.0)),
+
+        (x: 550.0, y: 0.0, kind: Checkpoint(priority: 2)), // 第２チェックポイント
     ],
 )
