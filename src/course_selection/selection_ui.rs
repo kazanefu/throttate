@@ -30,7 +30,7 @@ struct ConfirmButton;
 #[derive(Component)]
 struct ConfirmButtonText;
 
-fn confirm_ui_bundle(asset_server: &AssetServer) -> impl Bundle {
+fn confirm_ui_bundle(font: &Handle<Font>) -> impl Bundle {
     (
         Button,
         ConfirmButton,
@@ -46,7 +46,7 @@ fn confirm_ui_bundle(asset_server: &AssetServer) -> impl Bundle {
             ConfirmButtonText,
             Text::new("Confirm"),
             TextFont {
-                font: asset_server.load(FONT_PATH),
+                font: font.clone(),
                 font_size: 40.0,
                 ..default()
             },
@@ -56,11 +56,11 @@ fn confirm_ui_bundle(asset_server: &AssetServer) -> impl Bundle {
     )
 }
 
-fn selection_explanation_text_bundle(asset_server: &AssetServer) -> impl Bundle {
+fn selection_explanation_text_bundle(font: &Handle<Font>) -> impl Bundle {
     (
         Text::new(SELECTION_EXPLANATION),
         TextFont {
-            font: asset_server.load(FONT_PATH),
+            font: font.clone(),
             font_size: 40.0,
             ..default()
         },
@@ -120,7 +120,7 @@ fn course_list_button_node_bundle(len: usize) -> impl Bundle {
 struct CourseListButton(usize);
 
 fn course_list_button_bundle(
-    asset_server: &AssetServer,
+    font: &Handle<Font>,
     course_entry: &CourseEntry,
     len: usize,
 ) -> impl Bundle {
@@ -138,7 +138,7 @@ fn course_list_button_bundle(
         children![(
             Text::new(&course_entry.name),
             TextFont {
-                font: asset_server.load(FONT_PATH),
+                font: font.clone(),
                 font_size: 40.0,
                 ..default()
             },
@@ -150,15 +150,15 @@ fn course_list_button_bundle(
 
 fn spawn_selection_ui(
     mut commands: Commands,
-    asset_server: Res<AssetServer>,
+    font: Res<JpFont>,
     course_list_res: Res<CourseListResource>,
 ) {
     let canvas = commands.spawn(selection_canvas_bundle()).id();
     let sub_canvas = commands.spawn(selection_sub_canvas_bundle()).id();
     let explanation_text = commands
-        .spawn(selection_explanation_text_bundle(&asset_server))
+        .spawn(selection_explanation_text_bundle(font.get()))
         .id();
-    let confirm_button = commands.spawn(confirm_ui_bundle(&asset_server)).id();
+    let confirm_button = commands.spawn(confirm_ui_bundle(font.get())).id();
     let course_list_button = commands
         .spawn(course_list_button_node_bundle(course_list_res.0.len()))
         .id();
@@ -167,7 +167,7 @@ fn spawn_selection_ui(
         course_buttons.push(
             commands
                 .spawn(course_list_button_bundle(
-                    &asset_server,
+                    font.get(),
                     course_entry,
                     course_list_res.0.len(),
                 ))

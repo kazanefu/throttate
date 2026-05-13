@@ -1,4 +1,4 @@
-use crate::FONT_PATH;
+use crate::JpFont;
 use crate::playing::score::Score;
 use crate::state::GameState;
 use bevy::prelude::*;
@@ -18,7 +18,7 @@ impl Plugin for ResultUiPlugin {
 #[derive(Component)]
 struct ContinueButton;
 
-fn continue_button_bundle(asset_server: &AssetServer) -> impl Bundle {
+fn continue_button_bundle(font: &Handle<Font>) -> impl Bundle {
     (
         Button,
         ContinueButton,
@@ -33,7 +33,7 @@ fn continue_button_bundle(asset_server: &AssetServer) -> impl Bundle {
         children![(
             Text::new("コンティニュー"),
             TextFont {
-                font: asset_server.load(FONT_PATH),
+                font: font.clone(),
                 font_size: 40.0,
                 ..default()
             },
@@ -46,7 +46,7 @@ fn continue_button_bundle(asset_server: &AssetServer) -> impl Bundle {
 #[derive(Component)]
 struct ResultTextUi;
 
-fn result_text_bundle(asset_server: &AssetServer, score: &Score) -> impl Bundle {
+fn result_text_bundle(font: &Handle<Font>, score: &Score) -> impl Bundle {
     (
         ResultTextUi,
         Node {
@@ -60,7 +60,7 @@ fn result_text_bundle(asset_server: &AssetServer, score: &Score) -> impl Bundle 
                     (
                         Text::new("タイム: "),
                         TextFont {
-                            font: asset_server.load(FONT_PATH),
+                            font: font.clone(),
                             font_size: 40.0,
                             ..default()
                         },
@@ -69,7 +69,7 @@ fn result_text_bundle(asset_server: &AssetServer, score: &Score) -> impl Bundle 
                     (
                         Text::new(format!("{}", score.time)),
                         TextFont {
-                            font: asset_server.load(FONT_PATH),
+                            font: font.clone(),
                             font_size: 40.0,
                             ..default()
                         },
@@ -83,7 +83,7 @@ fn result_text_bundle(asset_server: &AssetServer, score: &Score) -> impl Bundle 
                     (
                         Text::new("死亡数: "),
                         TextFont {
-                            font: asset_server.load(FONT_PATH),
+                            font: font.clone(),
                             font_size: 40.0,
                             ..default()
                         },
@@ -92,7 +92,7 @@ fn result_text_bundle(asset_server: &AssetServer, score: &Score) -> impl Bundle 
                     (
                         Text::new(format!("{}", score.death)),
                         TextFont {
-                            font: asset_server.load(FONT_PATH),
+                            font: font.clone(),
                             font_size: 40.0,
                             ..default()
                         },
@@ -118,12 +118,10 @@ fn result_canvas_bundle() -> impl Bundle {
     )
 }
 
-fn spawn_result_ui(mut commands: Commands, asset_server: Res<AssetServer>, score: Res<Score>) {
+fn spawn_result_ui(mut commands: Commands, font: Res<JpFont>, score: Res<Score>) {
     let canvas = commands.spawn(result_canvas_bundle()).id();
-    let text = commands
-        .spawn(result_text_bundle(&asset_server, &score))
-        .id();
-    let continue_button = commands.spawn(continue_button_bundle(&asset_server)).id();
+    let text = commands.spawn(result_text_bundle(font.get(), &score)).id();
+    let continue_button = commands.spawn(continue_button_bundle(font.get())).id();
     commands
         .entity(canvas)
         .add_children(&[text, continue_button]);

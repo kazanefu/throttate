@@ -1,6 +1,6 @@
+use crate::JpFont;
 use crate::config::GameConfig;
 use crate::state::GameState;
-use crate::utils::FONT_PATH;
 use bevy::prelude::*;
 const EXPLANATION_TEXT: &str = r#"
 概要:
@@ -41,7 +41,7 @@ impl Plugin for StartUiPlugin {
 #[derive(Component)]
 struct StartButton;
 
-fn start_button_bundle(asset_server: &AssetServer) -> impl Bundle {
+fn start_button_bundle(font: &Handle<Font>) -> impl Bundle {
     (
         Button,
         StartButton,
@@ -56,7 +56,7 @@ fn start_button_bundle(asset_server: &AssetServer) -> impl Bundle {
         children![(
             Text::new("スタート"),
             TextFont {
-                font: asset_server.load(FONT_PATH),
+                font: font.clone(),
                 font_size: 40.0,
                 ..default()
             },
@@ -66,11 +66,11 @@ fn start_button_bundle(asset_server: &AssetServer) -> impl Bundle {
     )
 }
 
-fn explanation_text_bundle(asset_server: &AssetServer) -> impl Bundle {
+fn explanation_text_bundle(font: &Handle<Font>) -> impl Bundle {
     (
         Text::new(EXPLANATION_TEXT),
         TextFont {
-            font: asset_server.load(FONT_PATH),
+            font: font.clone(),
             font_size: 40.0,
             ..default()
         },
@@ -94,11 +94,11 @@ fn start_canvas_bundle() -> impl Bundle {
     )
 }
 
-fn spawn_start_ui(mut commands: Commands, asset_server: Res<AssetServer>) {
+fn spawn_start_ui(mut commands: Commands, font: Res<JpFont>) {
     let canvas = commands.spawn(start_canvas_bundle()).id();
     let sub_canvas = commands.spawn(start_sub_canvas_bundle()).id();
-    let explanation_text = commands.spawn(explanation_text_bundle(&asset_server)).id();
-    let start_button = commands.spawn(start_button_bundle(&asset_server)).id();
+    let explanation_text = commands.spawn(explanation_text_bundle(font.get())).id();
+    let start_button = commands.spawn(start_button_bundle(font.get())).id();
     commands
         .entity(sub_canvas)
         .add_children(&[explanation_text, start_button]);
