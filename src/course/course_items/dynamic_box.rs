@@ -38,6 +38,7 @@ pub fn dynamic_box_bundle(x: f32, y: f32, kind: &EntityKind) -> impl Bundle {
             linear_damping,
             angular_damping,
         },
+        Velocity::default(),
         ColliderMassProperties::Density(density_scale),
     )
 }
