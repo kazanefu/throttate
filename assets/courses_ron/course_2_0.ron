@@ -6,6 +6,7 @@
         (x: -275.0, y: 0.0, kind: Ground(width: 50.0, height: 550.0)), // 左端
         (x: 0.0, y: 0.0, kind: Checkpoint(priority: 1)), // スタート
 
+
         // Breakableセクション
         (x: 300.0, y: 0.0, kind: Breakable(required_speed: 5.0)),
         (x: 300.0, y: 100.0, kind: Breakable(required_speed: 5.0)),
@@ -41,6 +42,6 @@
 
         (x: 550.0, y: 0.0, kind: Checkpoint(priority: 2)), // 第２チェックポイント
 
-        // 
+
     ],
 )
