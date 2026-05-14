@@ -40,5 +40,7 @@
         (x: 500.0, y: -200.0, kind: Breakable(required_speed: 5.0)),
 
         (x: 550.0, y: 0.0, kind: Checkpoint(priority: 2)), // 第２チェックポイント
+
+        // 
     ],
 )
