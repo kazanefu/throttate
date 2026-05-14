@@ -60,5 +60,8 @@ fn spawn_course_from_entities<'a>(
         EntityKind::Text { sentence } => {
             commands.spawn(text_box::text_box_bundle(x, y, sentence, font))
         }
+        EntityKind::Dynamic { .. } => {
+            commands.spawn(dynamic_box::dynamic_box_bundle(x, y, &entity.kind))
+        }
     }
 }

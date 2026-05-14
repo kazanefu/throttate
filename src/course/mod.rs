@@ -49,13 +49,33 @@ pub struct EntityData {
 
 #[derive(Deserialize)]
 pub enum EntityKind {
-    Ground { width: f32, height: f32 },
-    Turret { interval: f32, rotation: f32 },
-    Breakable { required_speed: f32 },
+    Ground {
+        width: f32,
+        height: f32,
+    },
+    Turret {
+        interval: f32,
+        rotation: f32,
+    },
+    Breakable {
+        required_speed: f32,
+    },
     Death,
-    Checkpoint { priority: u32 },
+    Checkpoint {
+        priority: u32,
+    },
     Goal,
-    Text { sentence: String },
+    Text {
+        sentence: String,
+    },
+    Dynamic {
+        width: Option<f32>,
+        height: Option<f32>,
+        gravity_scale: Option<f32>,
+        linear_damping: Option<f32>,
+        angular_damping: Option<f32>,
+        density_scale: Option<f32>,
+    },
 }
 
 #[derive(Deserialize, Default)]
