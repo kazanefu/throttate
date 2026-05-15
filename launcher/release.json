@@ -6,7 +6,7 @@
         "name": "Throtate",
         "url": "https://github.com/kazanefu/throtate/releases/download/v0.1.4/throtate.zip",
         "type": "zip",
-        "sha256": "sha256:62517bf4a1b9ec983eea2d526dd2e2d27058b2aa8de7777b69eea504b0758579",
+        "sha256": "sha256:6ef5e941a7f54d3d941c403a96338bb1b2159312b11c67dc2f0c54e944f6a4f6",
         "entry_point": "throtate.exe"
       }
     ],
