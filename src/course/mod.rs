@@ -75,6 +75,7 @@ pub enum EntityKind {
         linear_damping: Option<f32>,
         angular_damping: Option<f32>,
         density_scale: Option<f32>,
+        restitution_coefficient: Option<f32>,
     },
 }
 

@@ -3,8 +3,15 @@ use crate::course::EntityKind;
 use super::*;
 
 pub fn dynamic_box_bundle(x: f32, y: f32, kind: &EntityKind) -> impl Bundle {
-    let (width, height, gravity_scale, linear_damping, angular_damping, density_scale) = match kind
-    {
+    let (
+        width,
+        height,
+        gravity_scale,
+        linear_damping,
+        angular_damping,
+        density_scale,
+        restitution_coefficient,
+    ) = match kind {
         EntityKind::Dynamic {
             width,
             height,
@@ -12,6 +19,7 @@ pub fn dynamic_box_bundle(x: f32, y: f32, kind: &EntityKind) -> impl Bundle {
             linear_damping,
             angular_damping,
             density_scale,
+            restitution_coefficient,
         } => (
             width.unwrap_or(ONE_BOX_SIZE),
             height.unwrap_or(ONE_BOX_SIZE),
@@ -19,6 +27,7 @@ pub fn dynamic_box_bundle(x: f32, y: f32, kind: &EntityKind) -> impl Bundle {
             linear_damping.unwrap_or(0.0),
             angular_damping.unwrap_or(0.0),
             density_scale.unwrap_or(1.0),
+            restitution_coefficient.unwrap_or(0.0),
         ),
         _ => {
             panic!("kind must be dynamic");
@@ -39,6 +48,7 @@ pub fn dynamic_box_bundle(x: f32, y: f32, kind: &EntityKind) -> impl Bundle {
             angular_damping,
         },
         Velocity::default(),
+        Restitution::coefficient(restitution_coefficient),
         ColliderMassProperties::Density(density_scale),
     )
 }

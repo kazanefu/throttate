@@ -1,12 +1,15 @@
 (
     entities: [
         (x: 0.0, y: 200.0, kind: Text(sentence: "コース: 2-0")),
-        (x: 2500.0, y: -325.0, kind: Ground(width: 5600.0, height: 100.0)), // 地面
+        (x: 0.0, y: -200.0, kind: Text(sentence: "新たに動かせるブロックが登場")),
+        (x: 2650.0, y: -325.0, kind: Ground(width: 5900.0, height: 100.0)), // 地面
         (x: 2500.0, y: 325.0, kind: Ground(width: 5600.0, height: 100.0)), // 天井
         (x: -275.0, y: 0.0, kind: Ground(width: 50.0, height: 550.0)), // 左端
         (x: 0.0, y: 0.0, kind: Checkpoint(priority: 1)), // スタート
 
-        (x: 0.0, y: -200.0, kind: Dynamic(gravity_scale: Some(0.0))),
+        (x: 0.0, y: 200.0, kind: Dynamic(gravity_scale: Some(0.0), restitution_coefficient: Some(1.0), density_scale: Some(0.001))),
+        (x: 200.0, y: 0.0, kind: Dynamic(gravity_scale: Some(0.0), restitution_coefficient: Some(1.0), density_scale: Some(0.001))),
+        (x: 0.0, y: -200.0, kind: Dynamic(gravity_scale: Some(0.0), restitution_coefficient: Some(1.0), density_scale: Some(0.001))),
 
         // Breakableセクション
         (x: 300.0, y: 0.0, kind: Breakable(required_speed: 5.0)),
@@ -61,5 +64,154 @@
 
         (x: 1200.0, y: 0.0, kind: Checkpoint(priority: 3)), // 第３チェックポイント
 
+        // 破壊セクション
+        (x: 1400.0, y: 0.0, kind: Dynamic(density_scale: Some(0.001), gravity_scale: Some(0.0), restitution_coefficient: Some(1.0))),
+        (x: 1400.0, y: -50.0, kind: Dynamic(density_scale: Some(0.001), gravity_scale: Some(0.0), restitution_coefficient: Some(1.0))),
+        (x: 1400.0, y: 50.0, kind: Dynamic(density_scale: Some(0.001), gravity_scale: Some(0.0), restitution_coefficient: Some(1.0))),
+        (x: 1400.0, y: 100.0, kind: Dynamic(density_scale: Some(0.001), gravity_scale: Some(0.0), restitution_coefficient: Some(1.0))),
+        (x: 1400.0, y: -100.0, kind: Dynamic(density_scale: Some(0.001), gravity_scale: Some(0.0), restitution_coefficient: Some(1.0))),
+
+        (x: 1700.0, y: 0.0, kind: Breakable(required_speed: 300.0)),
+        (x: 1700.0, y: 50.0, kind: Breakable(required_speed: 300.0)),
+        (x: 1700.0, y: -50.0, kind: Breakable(required_speed: 300.0)),
+        (x: 1700.0, y: 100.0, kind: Breakable(required_speed: 300.0)),
+        (x: 1700.0, y: -100.0, kind: Breakable(required_speed: 300.0)),
+        (x: 1700.0, y: 150.0, kind: Breakable(required_speed: 300.0)),
+        (x: 1700.0, y: -150.0, kind: Breakable(required_speed: 300.0)),
+        (x: 1700.0, y: 200.0, kind: Breakable(required_speed: 300.0)),
+        (x: 1700.0, y: -200.0, kind: Breakable(required_speed: 300.0)),
+        (x: 1700.0, y: 250.0, kind: Breakable(required_speed: 300.0)),
+        (x: 1700.0, y: -250.0, kind: Breakable(required_speed: 300.0)),
+
+        (x: 1800.0, y: 0.0, kind: Dynamic(density_scale: Some(0.001), gravity_scale: Some(0.0), restitution_coefficient: Some(1.0))),
+        (x: 1800.0, y: -50.0, kind: Dynamic(density_scale: Some(0.001), gravity_scale: Some(0.0), restitution_coefficient: Some(1.0))),
+        (x: 1800.0, y: 50.0, kind: Dynamic(density_scale: Some(0.001), gravity_scale: Some(0.0), restitution_coefficient: Some(1.0))),
+        (x: 1800.0, y: 100.0, kind: Dynamic(density_scale: Some(0.001), gravity_scale: Some(0.0), restitution_coefficient: Some(1.0))),
+        (x: 1800.0, y: -100.0, kind: Dynamic(density_scale: Some(0.001), gravity_scale: Some(0.0), restitution_coefficient: Some(1.0))),
+
+        (x: 1900.0, y: 0.0, kind: Breakable(required_speed: 300.0)),
+        (x: 1900.0, y: 50.0, kind: Breakable(required_speed: 300.0)),
+        (x: 1900.0, y: -50.0, kind: Breakable(required_speed: 300.0)),
+        (x: 1900.0, y: 100.0, kind: Breakable(required_speed: 300.0)),
+        (x: 1900.0, y: -100.0, kind: Breakable(required_speed: 300.0)),
+        (x: 1900.0, y: 150.0, kind: Breakable(required_speed: 300.0)),
+        (x: 1900.0, y: -150.0, kind: Breakable(required_speed: 300.0)),
+        (x: 1900.0, y: 200.0, kind: Breakable(required_speed: 300.0)),
+        (x: 1900.0, y: -200.0, kind: Breakable(required_speed: 300.0)),
+        (x: 1900.0, y: 250.0, kind: Breakable(required_speed: 300.0)),
+        (x: 1900.0, y: -250.0, kind: Breakable(required_speed: 300.0)),
+
+        (x: 2000.0, y: 0.0, kind: Checkpoint(priority: 4)),
+
+        // ドミノセクション
+        (x: 2300.0, y: -100.0, kind: Dynamic(height: Some(350.0),density_scale: Some(5.0), gravity_scale: Some(5.0), restitution_coefficient: Some(0.4))),
+        (x: 2450.0, y: -100.0, kind: Dynamic(height: Some(350.0),density_scale: Some(5.0), gravity_scale: Some(5.0), restitution_coefficient: Some(0.4))),
+        (x: 2600.0, y: 100.0, kind: Dynamic(height: Some(350.0),density_scale: Some(5.0), gravity_scale: Some(-5.0), restitution_coefficient: Some(0.4))),
+        (x: 2750.0, y: 100.0, kind: Dynamic(height: Some(350.0),density_scale: Some(5.0), gravity_scale: Some(-5.0), restitution_coefficient: Some(0.4))),
+        (x: 2900.0, y: -100.0, kind: Dynamic(height: Some(350.0),density_scale: Some(5.0), gravity_scale: Some(5.0), restitution_coefficient: Some(0.4))),
+        (x: 3050.0, y: -100.0, kind: Dynamic(height: Some(350.0),density_scale: Some(5.0), gravity_scale: Some(5.0), restitution_coefficient: Some(0.4))),
+        (x: 3200.0, y: -100.0, kind: Dynamic(height: Some(350.0),density_scale: Some(5.0), gravity_scale: Some(5.0), restitution_coefficient: Some(0.4))),
+
+        (x: 3350.0, y: -150.0, kind: Dynamic(height: Some(250.0),density_scale: Some(5.0), gravity_scale: Some(5.0), restitution_coefficient: Some(0.4))),
+        (x: 3450.0, y: -150.0, kind: Dynamic(height: Some(250.0),density_scale: Some(5.0), gravity_scale: Some(5.0), restitution_coefficient: Some(0.4))),
+        (x: 3550.0, y: -100.0, kind: Dynamic(height: Some(350.0),density_scale: Some(5.0), gravity_scale: Some(5.0), restitution_coefficient: Some(0.4))),
+        (x: 3700.0, y: -100.0, kind: Dynamic(height: Some(350.0),density_scale: Some(5.0), gravity_scale: Some(5.0), restitution_coefficient: Some(0.4))),
+        (x: 3850.0, y: -50.0, kind: Dynamic(height: Some(450.0),density_scale: Some(5.0), gravity_scale: Some(5.0), restitution_coefficient: Some(0.4))),
+        (x: 4050.0, y: 50.0, kind: Dynamic(height: Some(450.0),density_scale: Some(5.0), gravity_scale: Some(-5.0), restitution_coefficient: Some(0.4))),
+
+        (x: 4250.0, y: -250.0, kind: Turret(interval: 0.3, rotation: 1.57)),
+        (x: 4400.0, y: 250.0, kind: Turret(interval: 0.3, rotation: -1.57)),
+
+        (x: 4550.0, y: 0.0, kind: Checkpoint(priority: 5)),
+
+        (x: 5000.0, y: 2800.0, kind: Ground(width: 50.0, height: 5000.0)),
+        (x: 5600.0, y: 2500.0, kind: Ground(width: 50.0, height: 6100.0)),
+
+        (x: 5300.0, y: 600.0, kind: Checkpoint(priority: 6)),
+
+        // ストッパーセクション
+        (x: 5100.0, y: 900.0, kind: Ground(width: 50.0, height: 250.0)),
+        (x: 5150.0, y: 900.0, kind: Dynamic(height: Some(250.0),density_scale: Some(50.0), gravity_scale: Some(-50.0))),
+        (x: 5200.0, y: 900.0, kind: Ground(width: 50.0, height: 250.0)),
+        (x: 5150.0, y: 1050.0, kind: Breakable(required_speed: 40.0)),
+        (x: 5050.0, y: 1150.0, kind: Turret(interval: 0.3, rotation: 0.0)),
+        (x: 5150.0, y: 1200.0, kind: Ground(width: 150.0, height: 50.0)),
+
+        (x: 5500.0, y: 1350.0, kind: Ground(width: 50.0, height: 250.0)),
+        (x: 5450.0, y: 1350.0, kind: Dynamic(height: Some(250.0),density_scale: Some(50.0), gravity_scale: Some(-50.0))),
+        (x: 5400.0, y: 1350.0, kind: Ground(width: 50.0, height: 250.0)),
+        (x: 5450.0, y: 1500.0, kind: Breakable(required_speed: 40.0)),
+        (x: 5550.0, y: 1600.0, kind: Turret(interval: 0.3, rotation: 3.14)),
+        (x: 5450.0, y: 1650.0, kind: Ground(width: 150.0, height: 50.0)),
+
+        (x: 5300.0, y: 1700.0, kind: Checkpoint(priority: 7)),
+
+        // リフトセクション
+        (x: 5300.0, y: 2000.0, kind: Dynamic(width: Some(400.0),density_scale: Some(500.0), gravity_scale: Some(-50.0))),
+        (x: 5300.0, y: 2050.0, kind: Breakable(required_speed: 40.0)),
+        (x: 5300.0, y: 2300.0, kind: Dynamic(width: Some(500.0), density_scale: Some(0.001), gravity_scale: Some(0.0), restitution_coefficient: Some(1.0))),
+
+        (x: 5300.0, y: 2400.0, kind: Breakable(required_speed: 100.0)),
+        (x: 5200.0, y: 2400.0, kind: Breakable(required_speed: 100.0)),
+        (x: 5100.0, y: 2400.0, kind: Breakable(required_speed: 100.0)),
+        (x: 5400.0, y: 2400.0, kind: Breakable(required_speed: 100.0)),
+        (x: 5500.0, y: 2400.0, kind: Breakable(required_speed: 100.0)),
+
+        (x: 5350.0, y: 2450.0, kind: Breakable(required_speed: 100.0)),
+        (x: 5250.0, y: 2450.0, kind: Breakable(required_speed: 100.0)),
+        (x: 5150.0, y: 2450.0, kind: Breakable(required_speed: 100.0)),
+        (x: 5450.0, y: 2450.0, kind: Breakable(required_speed: 100.0)),
+        (x: 5550.0, y: 2450.0, kind: Breakable(required_speed: 100.0)),
+        (x: 5050.0, y: 2450.0, kind: Breakable(required_speed: 100.0)),
+
+        (x: 5300.0, y: 2500.0, kind: Breakable(required_speed: 100.0)),
+        (x: 5200.0, y: 2500.0, kind: Breakable(required_speed: 100.0)),
+        (x: 5100.0, y: 2500.0, kind: Breakable(required_speed: 100.0)),
+        (x: 5400.0, y: 2500.0, kind: Breakable(required_speed: 100.0)),
+        (x: 5500.0, y: 2500.0, kind: Breakable(required_speed: 100.0)),
+
+        (x: 5350.0, y: 2550.0, kind: Breakable(required_speed: 100.0)),
+        (x: 5250.0, y: 2550.0, kind: Breakable(required_speed: 100.0)),
+        (x: 5150.0, y: 2550.0, kind: Breakable(required_speed: 100.0)),
+        (x: 5450.0, y: 2550.0, kind: Breakable(required_speed: 100.0)),
+        (x: 5550.0, y: 2550.0, kind: Breakable(required_speed: 100.0)),
+        (x: 5050.0, y: 2550.0, kind: Breakable(required_speed: 100.0)),
+        (x: 5100.0, y: 2650.0, kind: Ground(width: 50.0, height: 50.0)),
+
+        (x: 5300.0, y: 3000.0, kind: Checkpoint(priority: 8)),
+
+
+        // ダイヤセクション
+
+        (x: 5300.0, y: 3100.0, kind: Death),
+
+        (x: 5300.0, y: 3300.0, kind: Death),
+        (x: 5100.0, y: 3300.0, kind: Death),
+        (x: 5500.0, y: 3300.0, kind: Death),
+
+        (x: 5350.0, y: 3350.0, kind: Death),
+        (x: 5150.0, y: 3350.0, kind: Death),
+        (x: 5550.0, y: 3350.0, kind: Death),
+
+        (x: 5250.0, y: 3350.0, kind: Death),
+        (x: 5050.0, y: 3350.0, kind: Death),
+        (x: 5450.0, y: 3350.0, kind: Death),
+
+        (x: 5300.0, y: 3400.0, kind: Death),
+        (x: 5100.0, y: 3400.0, kind: Death),
+        (x: 5500.0, y: 3400.0, kind: Death),
+
+        (x: 5150.0, y: 3500.0, kind: Death),
+        (x: 5450.0, y: 3500.0, kind: Death),
+
+        (x: 5100.0, y: 3550.0, kind: Death),
+        (x: 5400.0, y: 3550.0, kind: Death),
+        (x: 5200.0, y: 3550.0, kind: Death),
+        (x: 5500.0, y: 3550.0, kind: Death),
+
+        (x: 5150.0, y: 3600.0, kind: Death),
+        (x: 5450.0, y: 3600.0, kind: Death),
+
+        (x: 5300.0, y: 3700.0, kind: Goal),
     ],
 )
