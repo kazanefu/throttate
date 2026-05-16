@@ -7,6 +7,9 @@ use crate::state::RunningState;
 use definition::*;
 use systems::*;
 
+#[derive(SystemSet, Debug, Clone, PartialEq, Eq, Hash)]
+pub struct HammerSystemSet;
+
 pub struct HammerPlugin;
 
 impl Plugin for HammerPlugin {
@@ -15,6 +18,7 @@ impl Plugin for HammerPlugin {
             .add_message::<ChangeHandleDirection>()
             .add_message::<HammerFreeMessage>()
             .add_systems(Startup, load_pivot_texture)
+            .configure_sets(Update, HammerSystemSet.run_if(in_state(RunningState::Running)))
             .add_systems(
                 Update,
                 (
@@ -26,13 +30,17 @@ impl Plugin for HammerPlugin {
                     trail_effect::attach_trail_effect,
                     fix_hammer_z,
                 )
-                    .run_if(in_state(RunningState::Running)),
+                    .in_set(HammerSystemSet),
             );
     }
 }
 
 #[allow(unused)]
-pub fn spawn_hammer<'a>(commands: &'a mut Commands, translate: Vec2) -> EntityCommands<'a> {
+pub fn spawn_hammer<'a>(
+    commands: &'a mut Commands,
+    translate: Vec2,
+    config: &crate::config::GameConfig,
+) -> EntityCommands<'a> {
     let pivot = commands
         .spawn((
             RigidBody::Fixed,
@@ -45,7 +53,7 @@ pub fn spawn_hammer<'a>(commands: &'a mut Commands, translate: Vec2) -> EntityCo
             },
         ))
         .id();
-    commands.spawn(hammer_bundle(pivot, translate))
+    commands.spawn(hammer_bundle(pivot, translate, &config.hammer))
 }
 
 fn load_pivot_texture(mut commands: Commands, asset_server: Res<AssetServer>) {

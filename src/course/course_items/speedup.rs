@@ -24,17 +24,17 @@ impl SpeedUp {
     }
 }
 
-pub fn speedup_bundle(x: f32, y: f32, rate: f32) -> impl Bundle {
+pub fn speedup_bundle(x: f32, y: f32, rate: f32, box_size: f32) -> impl Bundle {
     (
         Transform::from_xyz(x, y, 0.0),
         SpeedUp::new(rate),
         RigidBody::Fixed,
         ActiveEvents::COLLISION_EVENTS,
-        Collider::cuboid(ONE_BOX_SIZE / 2.0, ONE_BOX_SIZE / 2.0),
+        Collider::cuboid(box_size / 2.0, box_size / 2.0),
         Sensor,
         Sprite {
             color: Color::srgb(0.0, 1.0, 0.3),
-            custom_size: Some(Vec2::new(ONE_BOX_SIZE, ONE_BOX_SIZE)),
+            custom_size: Some(Vec2::new(box_size, box_size)),
             ..default()
         },
     )

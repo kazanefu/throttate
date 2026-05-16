@@ -24,16 +24,16 @@ impl Breakable {
     }
 }
 
-pub fn breakable_box_bundle(x: f32, y: f32, required_speed: f32) -> impl Bundle {
+pub fn breakable_box_bundle(x: f32, y: f32, required_speed: f32, box_size: f32) -> impl Bundle {
     (
         Transform::from_xyz(x, y, 0.0),
         Breakable::new(required_speed),
         RigidBody::Fixed,
         ActiveEvents::COLLISION_EVENTS,
-        Collider::cuboid(ONE_BOX_SIZE / 2.0, ONE_BOX_SIZE / 2.0),
+        Collider::cuboid(box_size / 2.0, box_size / 2.0),
         Sprite {
             color: Color::srgb(0.9, 0.9, 0.2),
-            custom_size: Some(Vec2::new(ONE_BOX_SIZE, ONE_BOX_SIZE)),
+            custom_size: Some(Vec2::new(box_size, box_size)),
             ..default()
         },
     )

@@ -48,8 +48,9 @@ fn add_component_for_despawn(
 fn spawn_player(
     mut commands: Commands,
     mut handle_direction_message: MessageWriter<ChangeHandleDirection>,
+    config: Res<crate::config::GameConfig>,
 ) {
-    let player_entity = spawn_hammer(&mut commands, Vec2 { x: 0.0, y: 0.0 })
+    let player_entity = spawn_hammer(&mut commands, Vec2 { x: 0.0, y: 0.0 }, &config)
         .insert(Player)
         .insert(DeathCount(0))
         .insert(TargetCheckPoint::default())

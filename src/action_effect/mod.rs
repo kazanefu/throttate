@@ -12,7 +12,11 @@ impl Plugin for ActionEffectPlugin {
             .insert_resource(DeathEffect(None))
             .insert_resource(CheckPointEffect(None))
             .add_systems(Startup, (setup_death_effect, setup_checkpoint_effect))
-            .add_systems(Update, (handle_death_effect, handle_checkpoint_effect));
+            .add_systems(
+                Update,
+                (handle_death_effect, handle_checkpoint_effect)
+                    .run_if(in_state(crate::state::GameState::Playing)),
+            );
     }
 }
 

@@ -3,20 +3,25 @@ use crate::state::RunningState;
 use bevy::prelude::*;
 pub const FONT_PATH: &str = "embedded://throtate/fonts/NotoSansJP-Bold.ttf";
 
+#[derive(SystemSet, Debug, Clone, PartialEq, Eq, Hash)]
+pub struct UtilitySystemSet;
+
 pub struct UtilityPlugin;
 
 impl Plugin for UtilityPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Startup, load_jp_font).add_systems(
-            Update,
-            (
-                tick_interval,
-                update_stopwatch,
-                start_life_time,
-                despawn_life_end,
-            )
-                .run_if(in_state(RunningState::Running)),
-        );
+        app.add_systems(Startup, load_jp_font)
+            .configure_sets(Update, UtilitySystemSet.run_if(in_state(RunningState::Running)))
+            .add_systems(
+                Update,
+                (
+                    tick_interval,
+                    update_stopwatch,
+                    start_life_time,
+                    despawn_life_end,
+                )
+                    .in_set(UtilitySystemSet),
+            );
     }
 }
 

@@ -9,6 +9,7 @@ pub fn update_hammer(
     mut hammer_query: Query<(Entity, &mut Hammer)>,
     mut transform_query: Query<&mut Transform>,
     mut hammer_action_reader: MessageReader<HammerActionMessage>,
+    config: Res<GameConfig>,
 ) {
     for _ in hammer_action_reader.read() {
         for (hammer_entity, mut hammer) in hammer_query.iter_mut() {
@@ -28,13 +29,15 @@ pub fn update_hammer(
                         .get_mut(hammer.pivot_entity)
                         .expect("This hammer has no pivot");
                     pivot_transform.translation = hammer_transform.0
-                        + (hammer_transform.1 * hammer.handle_direction.offset().extend(0.0));
+                        + (hammer_transform.1
+                            * hammer.handle_direction.offset(&config.hammer).extend(0.0));
+                    let (vel, stiff) = hammer.handle_direction.spin(&config.hammer);
                     commands.entity(hammer_entity).insert(ImpulseJoint::new(
                         hammer.pivot_entity,
                         RevoluteJointBuilder::new()
                             .local_anchor1(Vec2::ZERO)
-                            .local_anchor2(hammer.handle_direction.offset())
-                            .motor_velocity(hammer.handle_direction.spin().0, HAMMER_SPIN.1),
+                            .local_anchor2(hammer.handle_direction.offset(&config.hammer))
+                            .motor_velocity(vel, stiff),
                     ));
                     hammer.state = HammerState::Spinning;
                 }
