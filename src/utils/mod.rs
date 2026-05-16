@@ -1,3 +1,4 @@
+pub mod button;
 pub mod collision;
 use crate::state::RunningState;
 use bevy::prelude::*;
@@ -11,7 +12,11 @@ pub struct UtilityPlugin;
 impl Plugin for UtilityPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(Startup, load_jp_font)
-            .configure_sets(Update, UtilitySystemSet.run_if(in_state(RunningState::Running)))
+            .configure_sets(
+                Update,
+                UtilitySystemSet.run_if(in_state(RunningState::Running)),
+            )
+            .add_plugins(button::ButtonPlugin)
             .add_systems(
                 Update,
                 (

@@ -1,0 +1,83 @@
+use super::*;
+use bevy::prelude::*;
+
+pub struct ButtonPlugin;
+
+impl Plugin for ButtonPlugin {
+    fn build(&self, app: &mut App) {
+        app.add_systems(
+            Update,
+            (update_button_target_scale, linear_interpolation_scale).in_set(UtilitySystemSet),
+        );
+    }
+}
+
+#[derive(Component)]
+pub struct SizeUpButton {
+    rate: f32,
+}
+
+impl SizeUpButton {
+    pub fn new(rate: f32) -> Self {
+        Self { rate }
+    }
+}
+
+#[derive(Component)]
+pub struct UiScaleLinearInterpolation {
+    target: Vec2,
+    speed: f32,
+}
+
+impl UiScaleLinearInterpolation {
+    pub fn new(target: Vec2, speed: f32) -> Self {
+        Self { target, speed }
+    }
+
+    pub fn from_speed(speed: f32) -> Self {
+        Self::new(Vec2::ONE, speed)
+    }
+}
+
+#[derive(Bundle)]
+pub struct SizeUpButtonBundle {
+    sizeup_button: SizeUpButton,
+    interpolation: UiScaleLinearInterpolation,
+}
+
+impl SizeUpButtonBundle {
+    pub fn new(rate: f32, speed: f32) -> Self {
+        Self {
+            sizeup_button: SizeUpButton::new(rate),
+            interpolation: UiScaleLinearInterpolation::from_speed(speed),
+        }
+    }
+}
+
+type SizeUpButtonInputs = (Changed<Interaction>, With<SizeUpButton>);
+
+fn update_button_target_scale(
+    mut query: Query<
+        (&Interaction, &mut UiScaleLinearInterpolation, &SizeUpButton),
+        SizeUpButtonInputs,
+    >,
+) {
+    for (interaction, mut interpolation, sizeup) in &mut query {
+        interpolation.target = match *interaction {
+            Interaction::Hovered => Vec2::splat(sizeup.rate),
+            _ => Vec2::ONE,
+        };
+    }
+}
+
+fn linear_interpolation_scale(
+    time: Res<Time>,
+    mut query: Query<(&mut UiTransform, &UiScaleLinearInterpolation)>,
+) {
+    for (mut ui_transform, interpolation) in &mut query {
+        ui_transform.scale = ui_transform.scale.lerp(
+            interpolation.target,
+            interpolation.speed * time.delta_secs(),
+        );
+    }
+}
