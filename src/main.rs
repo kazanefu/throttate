@@ -8,6 +8,7 @@ mod config;
 mod course;
 mod course_selection;
 mod hammer;
+mod materials;
 mod playing;
 mod result;
 mod settings;
@@ -41,6 +42,7 @@ fn main() {
     bevy::asset::embedded_asset!(app, "fonts/NotoSansJP-Bold.ttf");
     bevy::asset::embedded_asset!(app, "images/bluepivot.png");
     bevy::asset::embedded_asset!(app, "images/magentapivot.png");
+    bevy::asset::embedded_asset!(app, "shaders/death_vignette.wgsl");
     app.add_plugins(RapierPhysicsPlugin::<NoUserData>::default())
         // .add_plugins(RapierDebugRenderPlugin::default())
         .add_plugins(HanabiPlugin)
@@ -55,5 +57,6 @@ fn main() {
         .add_plugins(course_selection::CourseSelectionPlugin)
         .add_plugins(result::ResultPlugin)
         .add_plugins(action_effect::ActionEffectPlugin)
+        .add_plugins(materials::CustomMaterialPlugin)
         .run();
 }
