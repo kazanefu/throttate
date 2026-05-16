@@ -9,5 +9,6 @@ pub mod death_box;
 pub mod dynamic_box;
 pub mod goal;
 pub mod ground;
+pub mod speedup;
 pub mod text_box;
 pub mod turret;
