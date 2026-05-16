@@ -7,6 +7,9 @@ pub enum HammerState {
     Flying,
 }
 
+#[derive(Component)]
+pub struct HammerStateView;
+
 #[derive(Message)]
 pub struct ChangeHandleDirection(pub HandleDirection);
 
@@ -102,6 +105,16 @@ pub fn hammer_bundle(
                 Sprite {
                     color: Color::srgb(0.9, 0.0, 0.9),
                     custom_size: Some(Vec2::new(5.0, 5.0)),
+                    ..default()
+                },
+            ),
+            (
+                HammerStateView,
+                Visibility::Visible,
+                Transform::from_xyz(0.0, 0.0, 1.0),
+                Sprite {
+                    color: Color::srgb(1.0, 1.0, 1.0),
+                    custom_size: Some(vec2(config.size, config.size)),
                     ..default()
                 },
             ),

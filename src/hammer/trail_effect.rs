@@ -8,7 +8,13 @@ struct TrailEffect;
 #[derive(Component)]
 pub struct HasTrailEffect;
 
-pub fn trail_effect_bundle(effects: &mut Assets<EffectAsset>) -> impl Bundle {
+#[derive(Resource)]
+pub struct TrailEffectResource(pub Handle<EffectAsset>);
+
+pub fn setup_trail_effect(
+    mut commands: Commands,
+    mut effects: ResMut<Assets<EffectAsset>>,
+) {
     let mut gradient: bevy_hanabi::Gradient<Vec4> = bevy_hanabi::Gradient::new();
     gradient.add_key(0.0, Vec4::new(0.0, 0.0, 1.0, 1.));
     gradient.add_key(1.0, Vec4::new(1.0, 1.0, 1.0, 0.01));
@@ -56,23 +62,24 @@ pub fn trail_effect_bundle(effects: &mut Assets<EffectAsset>) -> impl Bundle {
     });
 
     let effect_handle = effects.add(effect);
-    (
-        TrailEffect,
-        ParticleEffect::new(effect_handle),
-        Transform::from_translation(-Vec3::Z),
-    )
+    commands.insert_resource(TrailEffectResource(effect_handle));
 }
 
 pub fn attach_trail_effect(
     mut commands: Commands,
     hammer_query: Query<Entity, (With<Hammer>, Without<HasTrailEffect>)>,
-    mut effects: ResMut<Assets<EffectAsset>>,
+    trail_effect_res: Res<TrailEffectResource>,
 ) {
     for hammer_entity in &hammer_query {
-        let trail_effect = commands.spawn(trail_effect_bundle(&mut effects)).id();
+        let trail_effect = commands.spawn((
+            TrailEffect,
+            ParticleEffect::new(trail_effect_res.0.clone()),
+            Transform::from_translation(-Vec3::Z),
+        )).id();
         commands
             .entity(hammer_entity)
             .add_child(trail_effect)
             .insert(HasTrailEffect);
     }
 }
+

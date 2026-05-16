@@ -128,3 +128,23 @@ pub fn pivot_texture(
         }
     }
 }
+
+pub fn update_hammer_state_view(
+    mut visibility_que: Query<&mut Visibility, With<HammerStateView>>,
+    hammer_que: Query<&Hammer, Changed<Hammer>>,
+) {
+    let Ok(Hammer {
+        state: hammer_state,
+        ..
+    }) = hammer_que.single()
+    else {
+        return;
+    };
+    let Ok(mut visibility) = visibility_que.single_mut() else {
+        return;
+    };
+    *visibility = match hammer_state {
+        HammerState::Flying => Visibility::Hidden,
+        HammerState::Spinning => Visibility::Visible,
+    };
+}

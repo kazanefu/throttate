@@ -17,8 +17,14 @@ impl Plugin for HammerPlugin {
         app.add_message::<HammerActionMessage>()
             .add_message::<ChangeHandleDirection>()
             .add_message::<HammerFreeMessage>()
-            .add_systems(Startup, load_pivot_texture)
-            .configure_sets(Update, HammerSystemSet.run_if(in_state(RunningState::Running)))
+            .add_systems(
+                Startup,
+                (load_pivot_texture, trail_effect::setup_trail_effect),
+            )
+            .configure_sets(
+                Update,
+                HammerSystemSet.run_if(in_state(RunningState::Running)),
+            )
             .add_systems(
                 Update,
                 (
@@ -29,6 +35,7 @@ impl Plugin for HammerPlugin {
                     pivot_texture,
                     trail_effect::attach_trail_effect,
                     fix_hammer_z,
+                    update_hammer_state_view,
                 )
                     .in_set(HammerSystemSet),
             );
