@@ -1,3 +1,4 @@
+use crate::button::SizeUpButtonBundle;
 use crate::course::CourseEntry;
 use crate::course_selection::resources::SelectedCourseID;
 use crate::{course::CourseListResource, state::GameState, *};
@@ -34,6 +35,8 @@ fn confirm_ui_bundle(font: &Handle<Font>) -> impl Bundle {
     (
         Button,
         ConfirmButton,
+        SizeUpButtonBundle::new(1.1, 10.0),
+        UiTransform::default(),
         Node {
             width: percent(50),
             height: percent(10),
@@ -127,6 +130,8 @@ fn course_list_button_bundle(
     (
         Button,
         CourseListButton(course_entry.id),
+        SizeUpButtonBundle::new(1.1, 10.0),
+        UiTransform::default(),
         Node {
             width: percent(100),
             height: percent((100.0 - len as f32 * 2.0) / len as f32),

@@ -1,4 +1,5 @@
 use crate::JpFont;
+use crate::button::SizeUpButtonBundle;
 use crate::config::GameConfig;
 use crate::state::GameState;
 use bevy::prelude::*;
@@ -45,6 +46,8 @@ fn start_button_bundle(font: &Handle<Font>) -> impl Bundle {
     (
         Button,
         StartButton,
+        SizeUpButtonBundle::new(1.2, 10.0),
+        UiTransform::default(),
         Node {
             width: percent(20),
             height: percent(10),

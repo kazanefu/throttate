@@ -1,4 +1,5 @@
 use crate::JpFont;
+use crate::button::SizeUpButtonBundle;
 use crate::playing::score::Score;
 use crate::state::GameState;
 use bevy::prelude::*;
@@ -22,6 +23,8 @@ fn continue_button_bundle(font: &Handle<Font>) -> impl Bundle {
     (
         Button,
         ContinueButton,
+        SizeUpButtonBundle::new(1.1, 10.0),
+        UiTransform::default(),
         Node {
             width: percent(40),
             height: percent(10),
