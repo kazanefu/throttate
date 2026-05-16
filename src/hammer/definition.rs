@@ -1,10 +1,6 @@
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 
-pub const HAMMER_HANDLE_OFFSET: Vec2 = Vec2 { x: -80.0, y: 0.0 };
-const HAMMER_SIZE: f32 = 20.0;
-pub const HAMMER_SPIN: (f32, f32) = (100.0, 0.1);
-
 #[derive(Clone, Copy)]
 pub enum HammerState {
     Spinning,
@@ -21,21 +17,22 @@ pub enum HandleDirection {
     LeftRight,
     RightLeft,
 }
+
 impl HandleDirection {
-    pub fn offset(&self) -> Vec2 {
+    pub fn offset(&self, config: &crate::config::HammerConfig) -> Vec2 {
         match self {
-            Self::LeftLeft => HAMMER_HANDLE_OFFSET,
-            Self::RightRight => HAMMER_HANDLE_OFFSET * -1.0,
-            Self::LeftRight => HAMMER_HANDLE_OFFSET,
-            Self::RightLeft => HAMMER_HANDLE_OFFSET * -1.0,
+            Self::LeftLeft => config.handle_offset,
+            Self::RightRight => config.handle_offset * -1.0,
+            Self::LeftRight => config.handle_offset,
+            Self::RightLeft => config.handle_offset * -1.0,
         }
     }
-    pub fn spin(&self) -> (f32, f32) {
+    pub fn spin(&self, config: &crate::config::HammerConfig) -> (f32, f32) {
         match self {
-            Self::LeftLeft => HAMMER_SPIN,
-            Self::RightRight => (-HAMMER_SPIN.0, HAMMER_SPIN.1),
-            Self::LeftRight => (-HAMMER_SPIN.0, HAMMER_SPIN.1),
-            Self::RightLeft => HAMMER_SPIN,
+            Self::LeftLeft => (config.spin_velocity, config.spin_stiffness),
+            Self::RightRight => (-config.spin_velocity, config.spin_stiffness),
+            Self::LeftRight => (-config.spin_velocity, config.spin_stiffness),
+            Self::RightLeft => (config.spin_velocity, config.spin_stiffness),
         }
     }
 }
@@ -62,7 +59,11 @@ pub struct HammerActionMessage;
 #[derive(Message)]
 pub struct HammerFreeMessage;
 
-pub fn hammer_bundle(pivot_entity: Entity, translate: Vec2) -> impl Bundle {
+pub fn hammer_bundle(
+    pivot_entity: Entity,
+    translate: Vec2,
+    config: &crate::config::HammerConfig,
+) -> impl Bundle {
     (
         Hammer {
             pivot_entity,
@@ -71,7 +72,7 @@ pub fn hammer_bundle(pivot_entity: Entity, translate: Vec2) -> impl Bundle {
         },
         RigidBody::Dynamic,
         Transform::from_xyz(translate.x, translate.y, 10.0),
-        Collider::ball(HAMMER_SIZE),
+        Collider::ball(config.size),
         Restitution::coefficient(0.8),
         Velocity::default(),
         Ccd::enabled(),
@@ -79,17 +80,17 @@ pub fn hammer_bundle(pivot_entity: Entity, translate: Vec2) -> impl Bundle {
             pivot_entity,
             RevoluteJointBuilder::new()
                 .local_anchor1(Vec2::ZERO)
-                .local_anchor2(HAMMER_HANDLE_OFFSET)
-                .motor_velocity(HAMMER_SPIN.0, HAMMER_SPIN.1),
+                .local_anchor2(config.handle_offset)
+                .motor_velocity(config.spin_velocity, config.spin_stiffness),
         ),
         Sprite {
             color: Color::srgb(0.0, 0.4, 0.9),
-            custom_size: Some(Vec2::new(HAMMER_SIZE * 2.0, HAMMER_SIZE * 2.0)),
+            custom_size: Some(Vec2::new(config.size * 2.0, config.size * 2.0)),
             ..default()
         },
         children![
             (
-                Transform::from_xyz(HAMMER_HANDLE_OFFSET.x, HAMMER_HANDLE_OFFSET.y, 10.0),
+                Transform::from_xyz(config.handle_offset.x, config.handle_offset.y, 10.0),
                 Sprite {
                     color: Color::srgb(0.0, 0.9, 0.9),
                     custom_size: Some(Vec2::new(5.0, 5.0)),
@@ -97,7 +98,7 @@ pub fn hammer_bundle(pivot_entity: Entity, translate: Vec2) -> impl Bundle {
                 },
             ),
             (
-                Transform::from_xyz(-HAMMER_HANDLE_OFFSET.x, HAMMER_HANDLE_OFFSET.y, 10.0),
+                Transform::from_xyz(-config.handle_offset.x, config.handle_offset.y, 10.0),
                 Sprite {
                     color: Color::srgb(0.9, 0.0, 0.9),
                     custom_size: Some(Vec2::new(5.0, 5.0)),

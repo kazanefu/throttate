@@ -2,7 +2,7 @@ use crate::course::EntityKind;
 
 use super::*;
 
-pub fn dynamic_box_bundle(x: f32, y: f32, kind: &EntityKind) -> impl Bundle {
+pub fn dynamic_box_bundle(x: f32, y: f32, kind: &EntityKind, box_size: f32) -> impl Bundle {
     let (
         width,
         height,
@@ -21,8 +21,8 @@ pub fn dynamic_box_bundle(x: f32, y: f32, kind: &EntityKind) -> impl Bundle {
             density_scale,
             restitution_coefficient,
         } => (
-            width.unwrap_or(ONE_BOX_SIZE),
-            height.unwrap_or(ONE_BOX_SIZE),
+            width.unwrap_or(box_size),
+            height.unwrap_or(box_size),
             gravity_scale.unwrap_or(1.0),
             linear_damping.unwrap_or(0.0),
             angular_damping.unwrap_or(0.0),
