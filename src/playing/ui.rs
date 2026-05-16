@@ -4,6 +4,7 @@ use crate::playing::score::Score;
 use crate::state::*;
 use crate::utils::*;
 use bevy::prelude::*;
+use bevy_rapier2d::prelude::*;
 pub struct PlayingUiPlugin;
 
 impl Plugin for PlayingUiPlugin {
@@ -11,7 +12,7 @@ impl Plugin for PlayingUiPlugin {
         app.add_systems(OnEnter(GameState::Playing), spawn_playing_ui)
             .add_systems(
                 Update,
-                (update_time_ui, update_death_count_ui)
+                (update_time_ui, update_death_count_ui, update_speed_ui)
                     .run_if(in_state(GameState::Playing).and(in_state(RunningState::Running))),
             );
     }
@@ -22,6 +23,9 @@ struct TimeUi;
 
 #[derive(Component)]
 struct DeathCountUi;
+
+#[derive(Component)]
+struct SpeedUi;
 
 fn playing_camvas_bundle() -> impl Bundle {
     (
@@ -65,15 +69,30 @@ fn death_count_ui_bundle(font: &Handle<Font>) -> impl Bundle {
     )
 }
 
+fn speed_ui_bundle(font: &Handle<Font>) -> impl Bundle {
+    (
+        SpeedUi,
+        Text::new(""),
+        TextFont {
+            font: font.clone(),
+            font_size: 40.0,
+            ..default()
+        },
+        TextLayout::new_with_justify(Justify::Center),
+        TextColor::WHITE,
+    )
+}
+
 fn spawn_playing_ui(mut commands: Commands, font: Res<JpFont>) {
     let canvas = commands.spawn(playing_camvas_bundle()).id();
     let time_ui = commands.spawn(time_ui_bundle(font.get())).id();
     let stopwatct = commands.spawn(StopWatch::new(true)).id();
     commands.entity(time_ui).add_child(stopwatct);
     let death_count_ui = commands.spawn(death_count_ui_bundle(font.get())).id();
+    let speed_ui = commands.spawn(speed_ui_bundle(font.get())).id();
     commands
         .entity(canvas)
-        .add_children(&[time_ui, death_count_ui]);
+        .add_children(&[time_ui, death_count_ui, speed_ui]);
 }
 use std::fmt::Write;
 fn update_time_ui(
@@ -110,5 +129,29 @@ fn update_death_count_ui(
         write!(&mut text.0, "死亡数: {}", death_count)
             .expect("writing to String should never fail");
         death_score.death = death_count;
+    }
+}
+
+fn update_speed_ui(
+    player_que: Query<&Velocity, With<Player>>,
+    mut ui_que: Query<(&mut TextColor, &mut Text), With<SpeedUi>>,
+) {
+    let Ok(velocity) = player_que.single() else {
+        return;
+    };
+    let Ok((mut color, mut text)) = ui_que.single_mut() else {
+        return;
+    };
+    let speed = velocity.linvel.length();
+    text.0.clear();
+    write!(&mut text.0, "スピード: {:.2}", speed).expect("writing to String should never fail");
+    color.0 = if speed >= 300.0 {
+        Color::srgb(1.0, 0.7, 0.0)
+    } else if speed >= 100.0 {
+        Color::srgb(0.4, 1.0, 0.2)
+    } else if speed >= 40.0 {
+        Color::srgb(0.0, 1.0, 1.0)
+    } else {
+        Color::srgb(1.0, 1.0, 1.0)
     }
 }
