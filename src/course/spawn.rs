@@ -63,5 +63,6 @@ fn spawn_course_from_entities<'a>(
         EntityKind::Dynamic { .. } => {
             commands.spawn(dynamic_box::dynamic_box_bundle(x, y, &entity.kind))
         }
+        EntityKind::SpeedUp { rate } => commands.spawn(speedup::speedup_bundle(x, y, *rate)),
     }
 }

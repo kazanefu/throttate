@@ -1,3 +1,4 @@
+pub mod collision;
 use crate::state::RunningState;
 use bevy::prelude::*;
 pub const FONT_PATH: &str = "embedded://throtate/fonts/NotoSansJP-Bold.ttf";

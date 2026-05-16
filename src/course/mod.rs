@@ -15,6 +15,7 @@ impl Plugin for CoursePlugin {
             .insert_resource(CourseListResource::default())
             .add_plugins(course_items::turret::TurretPlugin)
             .add_plugins(course_items::breakable_box::BreakableBoxPlugin)
+            .add_plugins(course_items::speedup::SpeedUpPlugin)
             .add_message::<SpawnCourseMessage>() //init_courses_list_resource)
             .add_systems(Update, spawn_course_from_id);
     }
@@ -76,6 +77,9 @@ pub enum EntityKind {
         angular_damping: Option<f32>,
         density_scale: Option<f32>,
         restitution_coefficient: Option<f32>,
+    },
+    SpeedUp {
+        rate: f32,
     },
 }
 
