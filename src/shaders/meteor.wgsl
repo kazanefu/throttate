@@ -9,92 +9,235 @@ struct MeteorUniform {
 @group(2) @binding(0)
 var<uniform> params: MeteorUniform;
 
+// -------------------------
+// hash noise
+// -------------------------
+
+fn hash(p: vec2<f32>) -> f32 {
+    return fract(
+        sin(
+            dot(
+                p,
+                vec2<f32>(127.1, 311.7)
+            )
+        ) * 43758.5453
+    );
+}
+
+// -------------------------
+// main
+// -------------------------
+
 @fragment
 fn fragment(
     in: VertexOutput
 ) -> @location(0) vec4<f32> {
 
-    // UV (0~1)
+    // =====================================================
+    // local UV
+    // =====================================================
+
     let uv = in.uv;
 
-    // 中心を(0,0)へ
-    let centered = uv - vec2<f32>(0.5f, 0.5f);
+    let centered = uv - vec2<f32>(0.5, 0.5);
 
-    // 円形距離
     let dist = length(centered);
 
-    // 円形マスク
-    let circle = 1.0f - smoothstep(
-        0.45f,
-        0.5f,
+    // =====================================================
+    // 円形
+    // =====================================================
+
+    let circle = 1.0
+        - smoothstep(
+        0.42,
+        0.5,
         dist
     );
 
-    // 円外透明
-    if circle <= 0.001f {
-        discard;
-    }
+    // =====================================================
+    // world方向
+    // =====================================================
 
-    // ===== world空間方向 =====
+    let velocity_dir = normalize(params.velocity_dir);
 
-    // pixelのworld座標
     let pixel_world = in.world_position.xy;
 
-    // 中心→pixel
     let world_dir = normalize(
         pixel_world
             - params.world_position
     );
 
-    // 前方強調
+    // 前方向
     let front = max(
         dot(
             world_dir,
-            normalize(params.velocity_dir)
+            velocity_dir
         ),
-        0.0f
+        0.0
     );
 
-    // speed調整
+    // 後方向
+    let back = max(
+        dot(
+            world_dir,
+            -velocity_dir
+        ),
+        0.0
+    );
+
+    // =====================================================
+    // speed
+    // =====================================================
+
     let speed = sqrt(params.speed_squared);
 
-    // 発光強度
-    let glow = pow(front, 6.0f)
-        * speed
-        * 0.02f;
+    let speed_factor = clamp(
+        speed * 0.02,
+        0.0,
+        1.5
+    );
 
-    // エッジ発光
+    // =====================================================
+    // 隕石表面
+    // =====================================================
+
+    let noise = hash(
+        floor(uv * 10.0)
+    );
+
+    // クレーター
+    let crater = smoothstep(
+        0.25,
+        0.0,
+        distance(
+            fract(uv * 4.0),
+            vec2<f32>(0.5)
+        )
+    );
+
+    // 岩色
+    let rock = vec3<f32>(
+        0.08,
+        0.09,
+        0.11
+    );
+
+    // 青鉱物
+    let mineral = vec3<f32>(
+        0.05,
+        0.2,
+        0.45
+    );
+
+    // ベース表面
+    var surface = mix(
+        rock,
+        mineral,
+        noise * 0.35
+    );
+
+    // クレーター暗化
+    surface *= 1.0
+        - crater * 0.3;
+
+    // 中央少しだけ明るい
+    let center_shade = 1.15
+        - dist * 1.1;
+
+    surface *= center_shade;
+
+    // =====================================================
+    // 外周
+    // =====================================================
+
+    // 外周だけ強調
     let edge = smoothstep(
-        0.25f,
-        0.5f,
+        0.18,
+        0.48,
         dist
     );
 
-    // 隕石本体色
-    let base_color = vec3<f32>(
-        0.0f,
-        0.4f,
-        0.9f
+    // =====================================================
+    // 摩擦熱 glow
+    // =====================================================
+
+    // 前面を広く
+    let burn_front = smoothstep(
+        0.0,
+        0.8,
+        front
     );
 
-    // 青白い発光
+    // 「前方向 × 外周」
+    let burn = burn_front
+        * edge;
+
+    // ノイズ揺らぎ
+    let burn_noise = 0.7
+        + noise * 0.6;
+
+    // 発光
+    let glow = burn
+        * burn_noise
+        * speed_factor
+        * 0.45;
+
+    // 高温青白
     let glow_color = vec3<f32>(
-        0.4f,
-        0.8f,
-        1.5f
+        0.3,
+        0.7,
+        1.3
     );
 
-    // 中央暗め
-    let center_shade = 1.0f - dist * 0.8f;
+    // =====================================================
+    // 尾
+    // =====================================================
 
+    // 後方方向
+    let trail_dir = pow(back, 3.5);
+
+    // 外側ほど強い
+    let trail_edge = smoothstep(
+        0.15,
+        0.55,
+        dist
+    );
+
+    // 尾
+    let trail = trail_dir
+        * trail_edge
+        * speed_factor
+        * 0.35;
+
+    let trail_color = vec3<f32>(
+        0.12,
+        0.45,
+        1.0
+    );
+
+    // =====================================================
     // 最終色
-    let color = base_color * center_shade
-        + glow_color * glow
-        + glow_color * edge * glow * 0.5f;
+    // =====================================================
 
+    let color = surface
+        + glow_color * glow
+        + trail_color * trail;
+
+    // =====================================================
     // alpha
-    let alpha = circle
-        * (0.8f + glow * 0.5f);
+    // =====================================================
+
+    let trail_alpha = trail
+        * smoothstep(
+        1.0,
+        0.3,
+        dist
+    );
+
+    let alpha = max(
+        circle,
+        trail_alpha * 0.5
+    );
 
     return vec4<f32>(
         color,
