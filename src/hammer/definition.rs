@@ -1,6 +1,8 @@
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 
+use crate::materials::MeteorMaterial;
+
 #[derive(Clone, Copy)]
 pub enum HammerState {
     Spinning,
@@ -63,16 +65,22 @@ pub struct HammerActionMessage;
 pub struct HammerFreeMessage;
 
 pub fn hammer_bundle(
+    meshes: &mut Assets<Mesh>,
+    meteor_materials: &mut Assets<MeteorMaterial>,
     pivot_entity: Entity,
     translate: Vec2,
     config: &crate::config::HammerConfig,
 ) -> impl Bundle {
+    let mesh = meshes.add(Circle::new(config.size));
+    let material = meteor_materials.add(MeteorMaterial::default());
     (
         Hammer {
             pivot_entity,
             state: HammerState::Spinning,
             handle_direction: HandleDirection::LeftLeft,
         },
+        Mesh2d(mesh),
+        MeshMaterial2d(material),
         RigidBody::Dynamic,
         Transform::from_xyz(translate.x, translate.y, 10.0),
         Collider::ball(config.size),
@@ -86,11 +94,11 @@ pub fn hammer_bundle(
                 .local_anchor2(config.handle_offset)
                 .motor_velocity(config.spin_velocity, config.spin_stiffness),
         ),
-        Sprite {
-            color: Color::srgb(0.0, 0.4, 0.9),
-            custom_size: Some(Vec2::new(config.size * 2.0, config.size * 2.0)),
-            ..default()
-        },
+        // Sprite {
+        //     color: Color::srgb(0.0, 0.4, 0.9),
+        //     custom_size: Some(Vec2::new(config.size * 2.0, config.size * 2.0)),
+        //     ..default()
+        // },
         children![
             (
                 Transform::from_xyz(config.handle_offset.x, config.handle_offset.y, 10.0),
