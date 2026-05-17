@@ -3,6 +3,7 @@ use crate::course::{CourseID, SpawnCourseMessage};
 use crate::course_selection::resources::SelectedCourseID;
 use crate::hammer::definition::{ChangeHandleDirection, HandleDirection, Pivot};
 use crate::hammer::spawn_hammer;
+use crate::materials::MeteorMaterial;
 use crate::state::GameState;
 use bevy_rapier2d::prelude::*;
 pub struct PlayingStartupPlugin;
@@ -48,15 +49,23 @@ fn add_component_for_despawn(
 fn spawn_player(
     mut commands: Commands,
     mut handle_direction_message: MessageWriter<ChangeHandleDirection>,
+    mut meshes: ResMut<Assets<Mesh>>,
+    mut meteor_materials: ResMut<Assets<MeteorMaterial>>,
     config: Res<crate::config::GameConfig>,
 ) {
-    let player_entity = spawn_hammer(&mut commands, Vec2 { x: 0.0, y: 0.0 }, &config)
-        .insert(Player)
-        .insert(DeathCount(0))
-        .insert(TargetCheckPoint::default())
-        .insert(ActiveEvents::COLLISION_EVENTS)
-        .insert(DespawnOnExit(GameState::Playing))
-        .id();
+    let player_entity = spawn_hammer(
+        &mut commands,
+        Vec2 { x: 0.0, y: 0.0 },
+        &mut meshes,
+        &mut meteor_materials,
+        &config,
+    )
+    .insert(Player)
+    .insert(DeathCount(0))
+    .insert(TargetCheckPoint::default())
+    .insert(ActiveEvents::COLLISION_EVENTS)
+    .insert(DespawnOnExit(GameState::Playing))
+    .id();
     handle_direction_message.write(ChangeHandleDirection(HandleDirection::LeftLeft));
     commands.spawn(main_camera_bundle(player_entity));
 }

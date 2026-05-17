@@ -140,11 +140,10 @@ pub fn update_hammer_state_view(
     else {
         return;
     };
-    let Ok(mut visibility) = visibility_que.single_mut() else {
-        return;
-    };
-    *visibility = match hammer_state {
-        HammerState::Flying => Visibility::Hidden,
-        HammerState::Spinning => Visibility::Visible,
-    };
+    for mut visibility in &mut visibility_que {
+        *visibility = match hammer_state {
+            HammerState::Flying => Visibility::Hidden,
+            HammerState::Spinning => Visibility::Visible,
+        };
+    }
 }

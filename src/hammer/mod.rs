@@ -3,7 +3,7 @@ use bevy_rapier2d::prelude::*;
 pub mod definition;
 mod systems;
 mod trail_effect;
-use crate::state::RunningState;
+use crate::{materials::MeteorMaterial, state::RunningState};
 use definition::*;
 use systems::*;
 
@@ -46,6 +46,8 @@ impl Plugin for HammerPlugin {
 pub fn spawn_hammer<'a>(
     commands: &'a mut Commands,
     translate: Vec2,
+    mut meshes: &mut Assets<Mesh>,
+    mut meteor_materials: &mut Assets<MeteorMaterial>,
     config: &crate::config::GameConfig,
 ) -> EntityCommands<'a> {
     let pivot = commands
@@ -60,7 +62,13 @@ pub fn spawn_hammer<'a>(
             },
         ))
         .id();
-    commands.spawn(hammer_bundle(pivot, translate, &config.hammer))
+    commands.spawn(hammer_bundle(
+        meshes,
+        meteor_materials,
+        pivot,
+        translate,
+        &config.hammer,
+    ))
 }
 
 fn load_pivot_texture(mut commands: Commands, asset_server: Res<AssetServer>) {

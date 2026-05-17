@@ -43,6 +43,7 @@ fn main() {
     bevy::asset::embedded_asset!(app, "images/bluepivot.png");
     bevy::asset::embedded_asset!(app, "images/magentapivot.png");
     bevy::asset::embedded_asset!(app, "shaders/death_vignette.wgsl");
+    bevy::asset::embedded_asset!(app, "shaders/meteor.wgsl");
     app.add_plugins(RapierPhysicsPlugin::<NoUserData>::default())
         // .add_plugins(RapierDebugRenderPlugin::default())
         .add_plugins(HanabiPlugin)
