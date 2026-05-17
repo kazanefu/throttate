@@ -94,11 +94,6 @@ pub fn hammer_bundle(
                 .local_anchor2(config.handle_offset)
                 .motor_velocity(config.spin_velocity, config.spin_stiffness),
         ),
-        // Sprite {
-        //     color: Color::srgb(0.0, 0.4, 0.9),
-        //     custom_size: Some(Vec2::new(config.size * 2.0, config.size * 2.0)),
-        //     ..default()
-        // },
         children![
             (
                 Transform::from_xyz(config.handle_offset.x, config.handle_offset.y, 10.0),
@@ -119,10 +114,28 @@ pub fn hammer_bundle(
             (
                 HammerStateView,
                 Visibility::Visible,
-                Transform::from_xyz(0.0, 0.0, 1.0),
+                Transform::from_xyz(
+                    config.handle_offset.x / 3.0,
+                    config.handle_offset.y / 3.0,
+                    1.0
+                ),
                 Sprite {
                     color: Color::srgb(1.0, 1.0, 1.0),
-                    custom_size: Some(vec2(config.size, config.size)),
+                    custom_size: Some(vec2(config.size / 3.0, config.size)),
+                    ..default()
+                },
+            ),
+            (
+                HammerStateView,
+                Visibility::Visible,
+                Transform::from_xyz(
+                    -config.handle_offset.x / 3.0,
+                    -config.handle_offset.y / 3.0,
+                    1.0
+                ),
+                Sprite {
+                    color: Color::srgb(1.0, 1.0, 1.0),
+                    custom_size: Some(vec2(config.size / 3.0, config.size)),
                     ..default()
                 },
             ),
